@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, RefreshCw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/client";
@@ -11,47 +14,37 @@ import type { LogRow } from "@/lib/types";
 
 export function LogsTable() {
   const supabase = useMemo(() => createClient(), []);
-  const [logs, setLogs] = useState<LogRow[]>([]);
   const [filters, setFilters] = useState({ name: "", email: "", rfid: "" });
-  const [loading, setLoading] = useState(true);
 
-  const loadLogs = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("logs")
-      .select("id,user_id,action,created_at,users(name,email,rfid_number)")
-      .order("created_at", { ascending: false })
-      .limit(200);
+  const {
+    data: logs = [],
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin-logs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("logs")
+        .select("id,user_id,action,created_at,users(name,email,rfid_number)")
+        .order("created_at", { ascending: false })
+        .limit(200);
 
-    if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      return;
-    }
+      if (error) {
+        throw error;
+      }
 
-    setLogs((data ?? []) as LogRow[]);
-    setLoading(false);
-  }, [supabase]);
+      return (data ?? []) as LogRow[];
+    },
+  });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      void loadLogs();
-    }, 0);
-
-    const channel = supabase
-      .channel("admin-logs-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "logs" }, () => {
-        void loadLogs();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => {
-        void loadLogs();
-      })
-      .subscribe();
-
-    return () => {
-      clearTimeout(timer);
-      void supabase.removeChannel(channel);
-    };
-  }, [loadLogs, supabase]);
+    if (isError && error instanceof Error) {
+      toast.error(error.message);
+    }
+  }, [error, isError]);
 
   const filtered = logs.filter((log) => {
     const user = Array.isArray(log.users) ? log.users[0] : log.users;
@@ -67,22 +60,37 @@ export function LogsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-3">
-        <Input
-          placeholder="Search by user name"
-          value={filters.name}
-          onChange={(event) => setFilters((prev) => ({ ...prev, name: event.target.value }))}
-        />
-        <Input
-          placeholder="Search by email"
-          value={filters.email}
-          onChange={(event) => setFilters((prev) => ({ ...prev, email: event.target.value }))}
-        />
-        <Input
-          placeholder="Search by RFID"
-          value={filters.rfid}
-          onChange={(event) => setFilters((prev) => ({ ...prev, rfid: event.target.value }))}
-        />
+      <div className="flex items-center justify-between gap-3">
+        <div className="grid w-full gap-3 md:grid-cols-3">
+          <Input
+            placeholder="Search by user name"
+            value={filters.name}
+            onChange={(event) => setFilters((prev) => ({ ...prev, name: event.target.value }))}
+          />
+          <Input
+            placeholder="Search by email"
+            value={filters.email}
+            onChange={(event) => setFilters((prev) => ({ ...prev, email: event.target.value }))}
+          />
+          <Input
+            placeholder="Search by RFID"
+            value={filters.rfid}
+            onChange={(event) => setFilters((prev) => ({ ...prev, rfid: event.target.value }))}
+          />
+        </div>
+        <Button variant="outline" size="sm" disabled={isFetching} onClick={() => void refetch()}>
+          {isFetching && !isLoading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Refreshing...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="size-4" />
+              Refresh
+            </>
+          )}
+        </Button>
       </div>
 
       <div className="rounded-xl border bg-card">
@@ -97,7 +105,7 @@ export function LogsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {isLoading ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
                   Loading logs...

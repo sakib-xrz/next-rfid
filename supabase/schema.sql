@@ -95,9 +95,9 @@ begin
 
   select *
   into v_user
-  from public.users
-  where rfid_number = trim(p_rfid_number)
-    and status = 'ACTIVE'
+  from public.users u
+  where u.rfid_number = trim(p_rfid_number)
+    and u.status = 'ACTIVE'
   limit 1;
 
   if not found then
@@ -109,9 +109,9 @@ begin
   if p_action = 'IN' then
     select *
     into v_active_session
-    from public.sessions
-    where user_id = v_user.id
-      and out_time is null
+    from public.sessions s
+    where s.user_id = v_user.id
+      and s.out_time is null
     limit 1
     for update;
 
@@ -127,9 +127,9 @@ begin
   else
     select *
     into v_active_session
-    from public.sessions
-    where user_id = v_user.id
-      and out_time is null
+    from public.sessions s
+    where s.user_id = v_user.id
+      and s.out_time is null
     limit 1
     for update;
 

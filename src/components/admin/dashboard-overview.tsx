@@ -1,9 +1,10 @@
 "use client";
 
-import { Activity, Clock3, UserCheck } from "lucide-react";
+import { Activity, Clock3, Loader2, RefreshCw, UserCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Stats = {
@@ -21,8 +22,11 @@ const initialStats: Stats = {
 export function DashboardOverview() {
   const [stats, setStats] = useState<Stats>(initialStats);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const loadStats = useCallback(async () => {
+  const loadStats = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    else setRefreshing(true);
     try {
       const response = await fetch("/api/admin/dashboard/stats", { cache: "no-store" });
       const payload = (await response.json()) as Partial<Stats> & { error?: string };
@@ -40,17 +44,17 @@ export function DashboardOverview() {
       toast.error(error instanceof Error ? error.message : "Failed to load dashboard stats");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    void loadStats();
-    const intervalId = setInterval(() => {
-      void loadStats();
-    }, 10_000);
+    const timerId = setTimeout(() => {
+      void loadStats(true);
+    }, 0);
 
     return () => {
-      clearInterval(intervalId);
+      clearTimeout(timerId);
     };
   }, [loadStats]);
 
@@ -76,19 +80,41 @@ export function DashboardOverview() {
   ];
 
   return (
-    <section className="grid gap-4 md:grid-cols-3">
-      {cards.map((card) => (
-        <Card key={card.title}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-            <card.icon className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-semibold">{loading ? "-" : card.value}</p>
-            <p className="text-xs text-muted-foreground">{card.hint}</p>
-          </CardContent>
-        </Card>
-      ))}
+    <section className="space-y-4">
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={loading || refreshing}
+          onClick={() => void loadStats(false)}
+        >
+          {refreshing ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Refreshing...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="size-4" />
+              Refresh
+            </>
+          )}
+        </Button>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        {cards.map((card) => (
+          <Card key={card.title}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+              <card.icon className="size-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-semibold">{loading ? "-" : card.value}</p>
+              <p className="text-xs text-muted-foreground">{card.hint}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </section>
   );
 }

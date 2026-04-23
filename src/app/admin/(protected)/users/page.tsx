@@ -6,7 +6,7 @@ export default function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">User Management</h1>
         <p className="text-sm text-muted-foreground">
-          Approve pending registration requests by scanning RFID tags, or reject requests.
+          Review all users, approve pending requests, and update account status.
         </p>
       </div>
       <UsersManagement />

@@ -12,9 +12,21 @@ export async function GET() {
   try {
     const admin = createAdminSupabaseClient();
     const [activeUsers, insideUsers, pendingUsers] = await Promise.all([
-      admin.from("users").select("id", { count: "exact", head: true }).eq("status", "ACTIVE"),
-      admin.from("sessions").select("id", { count: "exact", head: true }).is("out_time", null),
-      admin.from("users").select("id", { count: "exact", head: true }).eq("status", "PENDING"),
+      admin
+        .from("users")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "ACTIVE")
+        .neq("role", "ADMIN"),
+      admin
+        .from("sessions")
+        .select("id,users!inner(role)", { count: "exact", head: true })
+        .is("out_time", null)
+        .neq("users.role", "ADMIN"),
+      admin
+        .from("users")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "PENDING")
+        .neq("role", "ADMIN"),
     ]);
 
     if (activeUsers.error || insideUsers.error || pendingUsers.error) {

@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, RefreshCw } from "lucide-react";
+import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,11 +13,18 @@ import type { SessionRow } from "@/lib/types";
 
 export function SessionsTable() {
   const supabase = useMemo(() => createClient(), []);
-  const [sessions, setSessions] = useState<SessionRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submittingId, setSubmittingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const loadSessions = useCallback(async () => {
+  const {
+    data: sessions = [],
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin-sessions"],
+    queryFn: async () => {
     const { data, error } = await supabase
       .from("sessions")
       .select("id,user_id,in_time,out_time,total_time,users(name,rfid_number,email)")
@@ -23,55 +32,60 @@ export function SessionsTable() {
       .limit(300);
 
     if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      return;
+        throw error;
     }
 
-    setSessions((data ?? []) as SessionRow[]);
-    setLoading(false);
-  }, [supabase]);
+      return (data ?? []) as SessionRow[];
+    },
+  });
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      void loadSessions();
-    }, 0);
-    const channel = supabase
-      .channel("admin-sessions-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "sessions" }, () => {
-        void loadSessions();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => {
-        void loadSessions();
-      })
-      .subscribe();
+    if (isError && error instanceof Error) {
+      toast.error(error.message);
+    }
+  }, [error, isError]);
 
-    return () => {
-      clearTimeout(timer);
-      void supabase.removeChannel(channel);
-    };
-  }, [loadSessions, supabase]);
-
-  async function handleForceClose(sessionId: string) {
-    setSubmittingId(sessionId);
-    try {
+  const forceCloseMutation = useMutation({
+    mutationFn: async (sessionId: string) => {
       const response = await fetch(`/api/admin/sessions/${sessionId}/force-close`, {
         method: "POST",
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error ?? "Force close failed");
+      return sessionId;
+    },
+    onSuccess: async () => {
       toast.success("Session force-closed");
-      await loadSessions();
-    } catch (error) {
+      await queryClient.invalidateQueries({ queryKey: ["admin-sessions"] });
+    },
+    onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Force close failed");
-    } finally {
-      setSubmittingId(null);
-    }
+    },
+  });
+
+  function handleForceClose(sessionId: string) {
+    forceCloseMutation.mutate(sessionId);
   }
 
   return (
-    <div className="rounded-xl border bg-card">
-      <Table>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" disabled={isFetching} onClick={() => void refetch()}>
+          {isFetching && !isLoading ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Refreshing...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="size-4" />
+              Refresh
+            </>
+          )}
+        </Button>
+      </div>
+      <div className="rounded-xl border bg-card">
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
@@ -84,7 +98,7 @@ export function SessionsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading ? (
+          {isLoading ? (
             <TableRow>
               <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                 Loading sessions...
@@ -121,7 +135,9 @@ export function SessionsTable() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      disabled={submittingId === session.id}
+                      disabled={
+                        forceCloseMutation.isPending && forceCloseMutation.variables === session.id
+                      }
                       onClick={() => void handleForceClose(session.id)}
                     >
                       Force Close
@@ -132,7 +148,8 @@ export function SessionsTable() {
             ))
           )}
         </TableBody>
-      </Table>
+        </Table>
+      </div>
     </div>
   );
 }
