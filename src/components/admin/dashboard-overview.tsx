@@ -2,9 +2,9 @@
 
 import { Activity, Clock3, UserCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/client";
 
 type Stats = {
   totalActiveUsers: number;
@@ -19,57 +19,40 @@ const initialStats: Stats = {
 };
 
 export function DashboardOverview() {
-  const supabase = createClient();
   const [stats, setStats] = useState<Stats>(initialStats);
   const [loading, setLoading] = useState(true);
 
   const loadStats = useCallback(async () => {
-    const [activeUsers, insideUsers, pendingUsers] = await Promise.all([
-      supabase
-        .from("users")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "ACTIVE"),
-      supabase
-        .from("sessions")
-        .select("id", { count: "exact", head: true })
-        .is("out_time", null),
-      supabase
-        .from("users")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "PENDING"),
-    ]);
+    try {
+      const response = await fetch("/api/admin/dashboard/stats", { cache: "no-store" });
+      const payload = (await response.json()) as Partial<Stats> & { error?: string };
 
-    setStats({
-      totalActiveUsers: activeUsers.count ?? 0,
-      currentlyInside: insideUsers.count ?? 0,
-      pendingRequests: pendingUsers.count ?? 0,
-    });
-    setLoading(false);
-  }, [supabase]);
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to load dashboard stats");
+      }
+
+      setStats({
+        totalActiveUsers: payload.totalActiveUsers ?? 0,
+        currentlyInside: payload.currentlyInside ?? 0,
+        pendingRequests: payload.pendingRequests ?? 0,
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to load dashboard stats");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    void loadStats();
+    const intervalId = setInterval(() => {
       void loadStats();
-    }, 0);
-    const channel = supabase
-      .channel("dashboard-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "users" },
-        () => void loadStats()
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "sessions" },
-        () => void loadStats()
-      )
-      .subscribe();
+    }, 10_000);
 
     return () => {
-      clearTimeout(timer);
-      void supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
-  }, [loadStats, supabase]);
+  }, [loadStats]);
 
   const cards = [
     {

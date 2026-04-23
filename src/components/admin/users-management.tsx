@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { createClient } from "@/lib/supabase/client";
 import { formatDhakaDateTime } from "@/lib/time";
 import type { UserRow } from "@/lib/types";
 
 const MAX_RFID_LENGTH = 24;
 
 export function UsersManagement() {
-  const supabase = useMemo(() => createClient(), []);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
@@ -35,21 +33,21 @@ export function UsersManagement() {
   }>({ open: false });
 
   const loadUsers = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("status", "PENDING")
-      .order("created_at", { ascending: false });
+    try {
+      const response = await fetch("/api/admin/users/pending", { cache: "no-store" });
+      const payload = (await response.json()) as { users?: UserRow[]; error?: string };
 
-    if (error) {
-      toast.error(error.message);
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to load pending users");
+      }
+
+      setUsers(payload.users ?? []);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to load pending users");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setUsers((data ?? []) as UserRow[]);
-    setLoading(false);
-  }, [supabase]);
+  }, []);
 
   async function handleReject(userId: string) {
     setSubmitting(true);
@@ -130,21 +128,15 @@ export function UsersManagement() {
   }
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    void loadUsers();
+    const intervalId = setInterval(() => {
       void loadUsers();
-    }, 0);
-    const channel = supabase
-      .channel("users-pending-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => {
-        void loadUsers();
-      })
-      .subscribe();
+    }, 10_000);
 
     return () => {
-      clearTimeout(timer);
-      void supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
-  }, [loadUsers, supabase]);
+  }, [loadUsers]);
 
   return (
     <>
