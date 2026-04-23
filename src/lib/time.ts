@@ -1,21 +1,21 @@
-const DHAKA_TIMEZONE = "Asia/Dhaka";
+const MALAYSIA_TIMEZONE = "Asia/Kuala_Lumpur";
 
-export function formatDhakaDate(value: string | null) {
+export function formatMalaysiaDate(value: string | null) {
   if (!value) return "-";
 
   return new Intl.DateTimeFormat("en-GB", {
-    timeZone: DHAKA_TIMEZONE,
+    timeZone: MALAYSIA_TIMEZONE,
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   }).format(new Date(value));
 }
 
-export function formatDhakaTime(value: string | null) {
+export function formatMalaysiaTime(value: string | null) {
   if (!value) return "-";
 
   return new Intl.DateTimeFormat("en-US", {
-    timeZone: DHAKA_TIMEZONE,
+    timeZone: MALAYSIA_TIMEZONE,
     hour: "numeric",
     minute: "2-digit",
     second: "2-digit",
@@ -23,10 +23,15 @@ export function formatDhakaTime(value: string | null) {
   }).format(new Date(value));
 }
 
-export function formatDhakaDateTime(value: string | null) {
+export function formatMalaysiaDateTime(value: string | null) {
   if (!value) return "-";
-  return `${formatDhakaDate(value)} ${formatDhakaTime(value)}`;
+  return `${formatMalaysiaDate(value)} ${formatMalaysiaTime(value)}`;
 }
+
+// Backward-compatible aliases while UI migrates naming.
+export const formatDhakaDate = formatMalaysiaDate;
+export const formatDhakaTime = formatMalaysiaTime;
+export const formatDhakaDateTime = formatMalaysiaDateTime;
 
 export function formatDuration(seconds: number | null) {
   if (seconds === null) return "-";

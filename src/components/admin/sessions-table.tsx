@@ -2,17 +2,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { createClient } from "@/lib/supabase/client";
-import { formatDhakaDate, formatDhakaTime, formatDuration } from "@/lib/time";
+import { formatDuration, formatMalaysiaDate, formatMalaysiaTime } from "@/lib/time";
 import type { SessionRow } from "@/lib/types";
 
 export function SessionsTable() {
-  const supabase = useMemo(() => createClient(), []);
   const queryClient = useQueryClient();
 
   const {
@@ -25,17 +23,12 @@ export function SessionsTable() {
   } = useQuery({
     queryKey: ["admin-sessions"],
     queryFn: async () => {
-    const { data, error } = await supabase
-      .from("sessions")
-      .select("id,user_id,in_time,out_time,total_time,users(name,rfid_number,email)")
-      .order("in_time", { ascending: false })
-      .limit(300);
-
-    if (error) {
-        throw error;
-    }
-
-      return (data ?? []) as SessionRow[];
+      const response = await fetch("/api/admin/sessions", { cache: "no-store" });
+      const payload = (await response.json()) as { sessions?: SessionRow[]; error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to load sessions");
+      }
+      return payload.sessions ?? [];
     },
   });
 
@@ -120,9 +113,9 @@ export function SessionsTable() {
                   {(Array.isArray(session.users) ? session.users[0] : session.users)?.rfid_number ??
                     session.user_id.slice(0, 8)}
                 </TableCell>
-                <TableCell>{formatDhakaDate(session.in_time)}</TableCell>
-                <TableCell>{formatDhakaTime(session.in_time)}</TableCell>
-                <TableCell>{formatDhakaTime(session.out_time)}</TableCell>
+                <TableCell>{formatMalaysiaDate(session.in_time)}</TableCell>
+                <TableCell>{formatMalaysiaTime(session.in_time)}</TableCell>
+                <TableCell>{formatMalaysiaTime(session.out_time)}</TableCell>
                 <TableCell>
                   {session.total_time === null && session.out_time === null
                     ? "Active"

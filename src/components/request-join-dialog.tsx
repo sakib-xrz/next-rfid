@@ -135,12 +135,12 @@ export function RequestJoinDialog() {
             </div>
             <div className="space-y-1.5">
               <Label>Phone</Label>
-              <Input {...form.register("phone")} placeholder="+8801XXXXXXXXX" />
+              <Input {...form.register("phone")} placeholder="+6012XXXXXXX" />
               <p className="text-xs text-destructive">{form.formState.errors.phone?.message}</p>
             </div>
             <div className="space-y-1.5">
               <Label>Car Number</Label>
-              <Input {...form.register("car_number")} placeholder="DHAKA METRO XX-1234" />
+              <Input {...form.register("car_number")} placeholder="WXY 1234" />
               <p className="text-xs text-destructive">
                 {form.formState.errors.car_number?.message}
               </p>

@@ -2,18 +2,16 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { createClient } from "@/lib/supabase/client";
-import { formatDhakaDateTime } from "@/lib/time";
+import { formatMalaysiaDateTime } from "@/lib/time";
 import type { LogRow } from "@/lib/types";
 
 export function LogsTable() {
-  const supabase = useMemo(() => createClient(), []);
   const [filters, setFilters] = useState({ name: "", email: "", rfid: "" });
 
   const {
@@ -26,17 +24,12 @@ export function LogsTable() {
   } = useQuery({
     queryKey: ["admin-logs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("logs")
-        .select("id,user_id,action,created_at,users(name,email,rfid_number)")
-        .order("created_at", { ascending: false })
-        .limit(200);
-
-      if (error) {
-        throw error;
+      const response = await fetch("/api/admin/logs", { cache: "no-store" });
+      const payload = (await response.json()) as { logs?: LogRow[]; error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to load logs");
       }
-
-      return (data ?? []) as LogRow[];
+      return payload.logs ?? [];
     },
   });
 
@@ -101,7 +94,7 @@ export function LogsTable() {
               <TableHead>Email</TableHead>
               <TableHead>RFID</TableHead>
               <TableHead>Action</TableHead>
-              <TableHead>Time (Asia/Dhaka)</TableHead>
+              <TableHead>Time (Asia/Kuala_Lumpur)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -126,7 +119,7 @@ export function LogsTable() {
                     {(Array.isArray(log.users) ? log.users[0] : log.users)?.rfid_number ?? "-"}
                   </TableCell>
                   <TableCell className="font-medium">{log.action}</TableCell>
-                  <TableCell>{formatDhakaDateTime(log.created_at)}</TableCell>
+                  <TableCell>{formatMalaysiaDateTime(log.created_at)}</TableCell>
                 </TableRow>
               ))
             )}

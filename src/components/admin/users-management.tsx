@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDhakaDateTime } from "@/lib/time";
+import { formatMalaysiaDateTime } from "@/lib/time";
 import type { UserRow } from "@/lib/types";
 
 const MAX_RFID_LENGTH = 24;
@@ -283,7 +283,7 @@ export function UsersManagement() {
                   <TableCell>{user.car_number}</TableCell>
                   <TableCell>{user.course ?? "-"}</TableCell>
                   <TableCell>{user.status}</TableCell>
-                  <TableCell>{formatDhakaDateTime(user.created_at)}</TableCell>
+                  <TableCell>{formatMalaysiaDateTime(user.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="outline"
