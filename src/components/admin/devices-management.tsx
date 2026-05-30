@@ -1,6 +1,13 @@
 "use client";
 
-import { Loader2, MapPin, Plus, RadioTower, RefreshCw } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  Pencil,
+  Plus,
+  RadioTower,
+  RefreshCw,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -40,12 +47,22 @@ export function DevicesManagement() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingDevice, setEditingDevice] = useState<ScanDeviceRow | null>(
+    null,
+  );
+  const [updating, setUpdating] = useState(false);
 
   // Add device form state
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState<ActionType>("IN");
   const [newLocation, setNewLocation] = useState("");
   const [newSerialNumber, setNewSerialNumber] = useState("");
+
+  // Edit device form state
+  const [editName, setEditName] = useState("");
+  const [editType, setEditType] = useState<ActionType>("IN");
+  const [editLocation, setEditLocation] = useState("");
+  const [editSerialNumber, setEditSerialNumber] = useState("");
 
   const loadDevices = useCallback(async () => {
     setLoading(true);
@@ -129,6 +146,58 @@ export function DevicesManagement() {
     }
   }
 
+  function openEditDialog(device: ScanDeviceRow) {
+    setEditingDevice(device);
+    setEditName(device.name);
+    setEditType(device.type);
+    setEditLocation(device.location);
+    setEditSerialNumber(device.serial_number ?? "");
+  }
+
+  function closeEditDialog() {
+    setEditingDevice(null);
+    setEditName("");
+    setEditType("IN");
+    setEditLocation("");
+    setEditSerialNumber("");
+  }
+
+  async function handleUpdateDevice() {
+    if (!editingDevice) return;
+
+    if (!editName.trim() || !editLocation.trim()) {
+      toast.error("Name and location are required");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const response = await fetch(`/api/admin/devices/${editingDevice.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName.trim(),
+          type: editType,
+          location: editLocation.trim(),
+          serial_number: editSerialNumber.trim() || undefined,
+        }),
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Failed to update device");
+      }
+      toast.success("Device updated successfully");
+      closeEditDialog();
+      await loadDevices();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update device",
+      );
+    } finally {
+      setUpdating(false);
+    }
+  }
+
   useEffect(() => {
     const timerId = setTimeout(() => {
       void loadDevices();
@@ -177,7 +246,7 @@ export function DevicesManagement() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Device Code / Serial Number</TableHead>
+              <TableHead>COM Port / Serial Number</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created At</TableHead>
@@ -228,21 +297,31 @@ export function DevicesManagement() {
                   <TableCell>
                     {formatMalaysiaDateTime(device.created_at)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={togglingId === device.id}
-                      onClick={() => void handleToggleStatus(device.id)}
-                    >
-                      {togglingId === device.id ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : device.is_active ? (
-                        "Deactivate"
-                      ) : (
-                        "Activate"
-                      )}
-                    </Button>
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditDialog(device)}
+                      >
+                        <Pencil className="size-4" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={togglingId === device.id}
+                        onClick={() => void handleToggleStatus(device.id)}
+                      >
+                        {togglingId === device.id ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : device.is_active ? (
+                          "Deactivate"
+                        ) : (
+                          "Activate"
+                        )}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -271,7 +350,7 @@ export function DevicesManagement() {
               check-ins (IN) or check-outs (OUT).
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-lg border bg-muted/35 p-4 mt-5">
+          <div className="mt-5 rounded-lg border bg-muted/35 p-4">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="device-name">Device Name</Label>
@@ -308,13 +387,13 @@ export function DevicesManagement() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="device-serial">
-                  Device Code / Serial Number
+                  COM Port / Serial Number
                 </Label>
                 <Input
                   id="device-serial"
                   value={newSerialNumber}
                   onChange={(e) => setNewSerialNumber(e.target.value)}
-                  placeholder="e.g. COM9, RFID-SN-001 (optional)"
+                  placeholder="e.g. COM9"
                 />
               </div>
             </div>
@@ -342,6 +421,90 @@ export function DevicesManagement() {
                 </>
               ) : (
                 "Create Device"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={editingDevice !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeEditDialog();
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Scan Device</DialogTitle>
+            <DialogDescription>
+              Update scanner details and the COM port used by the automatic
+              RFID reader.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-5 rounded-lg border bg-muted/35 p-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-name">Device Name</Label>
+                <Input
+                  id="edit-device-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="e.g. Main Gate Scanner"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-type">Type</Label>
+                <Select
+                  value={editType}
+                  onValueChange={(value) => setEditType(value as ActionType)}
+                >
+                  <SelectTrigger id="edit-device-type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="IN">IN (Check-in)</SelectItem>
+                    <SelectItem value="OUT">OUT (Check-out)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-location">Location / Gate</Label>
+                <Input
+                  id="edit-device-location"
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  placeholder="e.g. Gate A, Building B Entrance"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-serial">
+                  COM Port / Serial Number
+                </Label>
+                <Input
+                  id="edit-device-serial"
+                  value={editSerialNumber}
+                  onChange={(e) => setEditSerialNumber(e.target.value)}
+                  placeholder="e.g. COM9"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="mt-5">
+            <Button variant="outline" onClick={closeEditDialog}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => void handleUpdateDevice()}
+              disabled={updating}
+            >
+              {updating ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                "Save Changes"
               )}
             </Button>
           </DialogFooter>

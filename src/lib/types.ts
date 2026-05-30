@@ -18,6 +18,27 @@ export type ScanDeviceRow = {
   updated_at: string;
 };
 
+export type RfidReaderPortStatus = {
+  device_id: string;
+  device_name: string;
+  device_type: ActionType;
+  location: string;
+  port: string;
+  connected: boolean;
+  state: "idle" | "connecting" | "connected" | "reconnecting" | "stopped";
+  last_epc: string | null;
+  last_error: string | null;
+  last_message: string | null;
+  last_seen_at: string | null;
+};
+
+export type RfidReaderStatus = {
+  enabled: boolean;
+  last_sync_at: string | null;
+  last_sync_error: string | null;
+  ports: RfidReaderPortStatus[];
+};
+
 export type UserRow = {
   id: string;
   name: string;

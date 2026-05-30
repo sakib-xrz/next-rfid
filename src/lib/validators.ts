@@ -23,3 +23,5 @@ export const createDeviceSchema = z.object({
   location: z.string().min(1, "Location is required"),
   serial_number: z.string().trim().optional(),
 });
+
+export const updateDeviceSchema = createDeviceSchema;
