@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model ScanDevice
+ * 
+ */
+export type ScanDevice = Prisma.ScanDeviceModel
+/**
  * Model Log
  * 
  */

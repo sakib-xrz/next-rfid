@@ -28,6 +28,7 @@ export type LogMinAggregateOutputType = {
   id: string | null
   userId: string | null
   action: $Enums.ActionType | null
+  deviceId: string | null
   createdAt: Date | null
 }
 
@@ -35,6 +36,7 @@ export type LogMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   action: $Enums.ActionType | null
+  deviceId: string | null
   createdAt: Date | null
 }
 
@@ -42,6 +44,7 @@ export type LogCountAggregateOutputType = {
   id: number
   userId: number
   action: number
+  deviceId: number
   createdAt: number
   _all: number
 }
@@ -51,6 +54,7 @@ export type LogMinAggregateInputType = {
   id?: true
   userId?: true
   action?: true
+  deviceId?: true
   createdAt?: true
 }
 
@@ -58,6 +62,7 @@ export type LogMaxAggregateInputType = {
   id?: true
   userId?: true
   action?: true
+  deviceId?: true
   createdAt?: true
 }
 
@@ -65,6 +70,7 @@ export type LogCountAggregateInputType = {
   id?: true
   userId?: true
   action?: true
+  deviceId?: true
   createdAt?: true
   _all?: true
 }
@@ -145,6 +151,7 @@ export type LogGroupByOutputType = {
   id: string
   userId: string
   action: $Enums.ActionType
+  deviceId: string | null
   createdAt: Date
   _count: LogCountAggregateOutputType | null
   _min: LogMinAggregateOutputType | null
@@ -173,16 +180,20 @@ export type LogWhereInput = {
   id?: Prisma.UuidFilter<"Log"> | string
   userId?: Prisma.UuidFilter<"Log"> | string
   action?: Prisma.EnumActionTypeFilter<"Log"> | $Enums.ActionType
+  deviceId?: Prisma.UuidNullableFilter<"Log"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Log"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  device?: Prisma.XOR<Prisma.ScanDeviceNullableScalarRelationFilter, Prisma.ScanDeviceWhereInput> | null
 }
 
 export type LogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   action?: Prisma.SortOrder
+  deviceId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  device?: Prisma.ScanDeviceOrderByWithRelationInput
 }
 
 export type LogWhereUniqueInput = Prisma.AtLeast<{
@@ -192,14 +203,17 @@ export type LogWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.LogWhereInput | Prisma.LogWhereInput[]
   userId?: Prisma.UuidFilter<"Log"> | string
   action?: Prisma.EnumActionTypeFilter<"Log"> | $Enums.ActionType
+  deviceId?: Prisma.UuidNullableFilter<"Log"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Log"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  device?: Prisma.XOR<Prisma.ScanDeviceNullableScalarRelationFilter, Prisma.ScanDeviceWhereInput> | null
 }, "id">
 
 export type LogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   action?: Prisma.SortOrder
+  deviceId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.LogCountOrderByAggregateInput
   _max?: Prisma.LogMaxOrderByAggregateInput
@@ -213,6 +227,7 @@ export type LogScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Log"> | string
   userId?: Prisma.UuidWithAggregatesFilter<"Log"> | string
   action?: Prisma.EnumActionTypeWithAggregatesFilter<"Log"> | $Enums.ActionType
+  deviceId?: Prisma.UuidNullableWithAggregatesFilter<"Log"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Log"> | Date | string
 }
 
@@ -221,12 +236,14 @@ export type LogCreateInput = {
   action: $Enums.ActionType
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutLogsInput
+  device?: Prisma.ScanDeviceCreateNestedOneWithoutLogsInput
 }
 
 export type LogUncheckedCreateInput = {
   id?: string
   userId: string
   action: $Enums.ActionType
+  deviceId?: string | null
   createdAt?: Date | string
 }
 
@@ -235,12 +252,14 @@ export type LogUpdateInput = {
   action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutLogsNestedInput
+  device?: Prisma.ScanDeviceUpdateOneWithoutLogsNestedInput
 }
 
 export type LogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -248,6 +267,7 @@ export type LogCreateManyInput = {
   id?: string
   userId: string
   action: $Enums.ActionType
+  deviceId?: string | null
   createdAt?: Date | string
 }
 
@@ -261,6 +281,7 @@ export type LogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -278,6 +299,7 @@ export type LogCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   action?: Prisma.SortOrder
+  deviceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -285,6 +307,7 @@ export type LogMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   action?: Prisma.SortOrder
+  deviceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -292,6 +315,7 @@ export type LogMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   action?: Prisma.SortOrder
+  deviceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -337,19 +361,59 @@ export type LogUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.LogScalarWhereInput | Prisma.LogScalarWhereInput[]
 }
 
-export type EnumActionTypeFieldUpdateOperationsInput = {
-  set?: $Enums.ActionType
+export type LogCreateNestedManyWithoutDeviceInput = {
+  create?: Prisma.XOR<Prisma.LogCreateWithoutDeviceInput, Prisma.LogUncheckedCreateWithoutDeviceInput> | Prisma.LogCreateWithoutDeviceInput[] | Prisma.LogUncheckedCreateWithoutDeviceInput[]
+  connectOrCreate?: Prisma.LogCreateOrConnectWithoutDeviceInput | Prisma.LogCreateOrConnectWithoutDeviceInput[]
+  createMany?: Prisma.LogCreateManyDeviceInputEnvelope
+  connect?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+}
+
+export type LogUncheckedCreateNestedManyWithoutDeviceInput = {
+  create?: Prisma.XOR<Prisma.LogCreateWithoutDeviceInput, Prisma.LogUncheckedCreateWithoutDeviceInput> | Prisma.LogCreateWithoutDeviceInput[] | Prisma.LogUncheckedCreateWithoutDeviceInput[]
+  connectOrCreate?: Prisma.LogCreateOrConnectWithoutDeviceInput | Prisma.LogCreateOrConnectWithoutDeviceInput[]
+  createMany?: Prisma.LogCreateManyDeviceInputEnvelope
+  connect?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+}
+
+export type LogUpdateManyWithoutDeviceNestedInput = {
+  create?: Prisma.XOR<Prisma.LogCreateWithoutDeviceInput, Prisma.LogUncheckedCreateWithoutDeviceInput> | Prisma.LogCreateWithoutDeviceInput[] | Prisma.LogUncheckedCreateWithoutDeviceInput[]
+  connectOrCreate?: Prisma.LogCreateOrConnectWithoutDeviceInput | Prisma.LogCreateOrConnectWithoutDeviceInput[]
+  upsert?: Prisma.LogUpsertWithWhereUniqueWithoutDeviceInput | Prisma.LogUpsertWithWhereUniqueWithoutDeviceInput[]
+  createMany?: Prisma.LogCreateManyDeviceInputEnvelope
+  set?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  disconnect?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  delete?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  connect?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  update?: Prisma.LogUpdateWithWhereUniqueWithoutDeviceInput | Prisma.LogUpdateWithWhereUniqueWithoutDeviceInput[]
+  updateMany?: Prisma.LogUpdateManyWithWhereWithoutDeviceInput | Prisma.LogUpdateManyWithWhereWithoutDeviceInput[]
+  deleteMany?: Prisma.LogScalarWhereInput | Prisma.LogScalarWhereInput[]
+}
+
+export type LogUncheckedUpdateManyWithoutDeviceNestedInput = {
+  create?: Prisma.XOR<Prisma.LogCreateWithoutDeviceInput, Prisma.LogUncheckedCreateWithoutDeviceInput> | Prisma.LogCreateWithoutDeviceInput[] | Prisma.LogUncheckedCreateWithoutDeviceInput[]
+  connectOrCreate?: Prisma.LogCreateOrConnectWithoutDeviceInput | Prisma.LogCreateOrConnectWithoutDeviceInput[]
+  upsert?: Prisma.LogUpsertWithWhereUniqueWithoutDeviceInput | Prisma.LogUpsertWithWhereUniqueWithoutDeviceInput[]
+  createMany?: Prisma.LogCreateManyDeviceInputEnvelope
+  set?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  disconnect?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  delete?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  connect?: Prisma.LogWhereUniqueInput | Prisma.LogWhereUniqueInput[]
+  update?: Prisma.LogUpdateWithWhereUniqueWithoutDeviceInput | Prisma.LogUpdateWithWhereUniqueWithoutDeviceInput[]
+  updateMany?: Prisma.LogUpdateManyWithWhereWithoutDeviceInput | Prisma.LogUpdateManyWithWhereWithoutDeviceInput[]
+  deleteMany?: Prisma.LogScalarWhereInput | Prisma.LogScalarWhereInput[]
 }
 
 export type LogCreateWithoutUserInput = {
   id?: string
   action: $Enums.ActionType
   createdAt?: Date | string
+  device?: Prisma.ScanDeviceCreateNestedOneWithoutLogsInput
 }
 
 export type LogUncheckedCreateWithoutUserInput = {
   id?: string
   action: $Enums.ActionType
+  deviceId?: string | null
   createdAt?: Date | string
 }
 
@@ -386,12 +450,54 @@ export type LogScalarWhereInput = {
   id?: Prisma.UuidFilter<"Log"> | string
   userId?: Prisma.UuidFilter<"Log"> | string
   action?: Prisma.EnumActionTypeFilter<"Log"> | $Enums.ActionType
+  deviceId?: Prisma.UuidNullableFilter<"Log"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Log"> | Date | string
+}
+
+export type LogCreateWithoutDeviceInput = {
+  id?: string
+  action: $Enums.ActionType
+  createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutLogsInput
+}
+
+export type LogUncheckedCreateWithoutDeviceInput = {
+  id?: string
+  userId: string
+  action: $Enums.ActionType
+  createdAt?: Date | string
+}
+
+export type LogCreateOrConnectWithoutDeviceInput = {
+  where: Prisma.LogWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogCreateWithoutDeviceInput, Prisma.LogUncheckedCreateWithoutDeviceInput>
+}
+
+export type LogCreateManyDeviceInputEnvelope = {
+  data: Prisma.LogCreateManyDeviceInput | Prisma.LogCreateManyDeviceInput[]
+  skipDuplicates?: boolean
+}
+
+export type LogUpsertWithWhereUniqueWithoutDeviceInput = {
+  where: Prisma.LogWhereUniqueInput
+  update: Prisma.XOR<Prisma.LogUpdateWithoutDeviceInput, Prisma.LogUncheckedUpdateWithoutDeviceInput>
+  create: Prisma.XOR<Prisma.LogCreateWithoutDeviceInput, Prisma.LogUncheckedCreateWithoutDeviceInput>
+}
+
+export type LogUpdateWithWhereUniqueWithoutDeviceInput = {
+  where: Prisma.LogWhereUniqueInput
+  data: Prisma.XOR<Prisma.LogUpdateWithoutDeviceInput, Prisma.LogUncheckedUpdateWithoutDeviceInput>
+}
+
+export type LogUpdateManyWithWhereWithoutDeviceInput = {
+  where: Prisma.LogScalarWhereInput
+  data: Prisma.XOR<Prisma.LogUpdateManyMutationInput, Prisma.LogUncheckedUpdateManyWithoutDeviceInput>
 }
 
 export type LogCreateManyUserInput = {
   id?: string
   action: $Enums.ActionType
+  deviceId?: string | null
   createdAt?: Date | string
 }
 
@@ -399,16 +505,47 @@ export type LogUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  device?: Prisma.ScanDeviceUpdateOneWithoutLogsNestedInput
 }
 
 export type LogUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LogUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  deviceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogCreateManyDeviceInput = {
+  id?: string
+  userId: string
+  action: $Enums.ActionType
+  createdAt?: Date | string
+}
+
+export type LogUpdateWithoutDeviceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutLogsNestedInput
+}
+
+export type LogUncheckedUpdateWithoutDeviceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LogUncheckedUpdateManyWithoutDeviceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   action?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -419,53 +556,65 @@ export type LogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   id?: boolean
   userId?: boolean
   action?: boolean
+  deviceId?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  device?: boolean | Prisma.Log$deviceArgs<ExtArgs>
 }, ExtArgs["result"]["log"]>
 
 export type LogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   action?: boolean
+  deviceId?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  device?: boolean | Prisma.Log$deviceArgs<ExtArgs>
 }, ExtArgs["result"]["log"]>
 
 export type LogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   action?: boolean
+  deviceId?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  device?: boolean | Prisma.Log$deviceArgs<ExtArgs>
 }, ExtArgs["result"]["log"]>
 
 export type LogSelectScalar = {
   id?: boolean
   userId?: boolean
   action?: boolean
+  deviceId?: boolean
   createdAt?: boolean
 }
 
-export type LogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "action" | "createdAt", ExtArgs["result"]["log"]>
+export type LogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "action" | "deviceId" | "createdAt", ExtArgs["result"]["log"]>
 export type LogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  device?: boolean | Prisma.Log$deviceArgs<ExtArgs>
 }
 export type LogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  device?: boolean | Prisma.Log$deviceArgs<ExtArgs>
 }
 export type LogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  device?: boolean | Prisma.Log$deviceArgs<ExtArgs>
 }
 
 export type $LogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Log"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    device: Prisma.$ScanDevicePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
     action: $Enums.ActionType
+    deviceId: string | null
     createdAt: Date
   }, ExtArgs["result"]["log"]>
   composites: {}
@@ -862,6 +1011,7 @@ readonly fields: LogFieldRefs;
 export interface Prisma__LogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  device<T extends Prisma.Log$deviceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Log$deviceArgs<ExtArgs>>): Prisma.Prisma__ScanDeviceClient<runtime.Types.Result.GetResult<Prisma.$ScanDevicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -894,6 +1044,7 @@ export interface LogFieldRefs {
   readonly id: Prisma.FieldRef<"Log", 'String'>
   readonly userId: Prisma.FieldRef<"Log", 'String'>
   readonly action: Prisma.FieldRef<"Log", 'ActionType'>
+  readonly deviceId: Prisma.FieldRef<"Log", 'String'>
   readonly createdAt: Prisma.FieldRef<"Log", 'DateTime'>
 }
     
@@ -1293,6 +1444,25 @@ export type LogDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Limit how many Logs to delete.
    */
   limit?: number
+}
+
+/**
+ * Log.device
+ */
+export type Log$deviceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScanDevice
+   */
+  select?: Prisma.ScanDeviceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScanDevice
+   */
+  omit?: Prisma.ScanDeviceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScanDeviceInclude<ExtArgs> | null
+  where?: Prisma.ScanDeviceWhereInput
 }
 
 /**

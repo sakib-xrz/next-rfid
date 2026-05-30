@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  ScanDevice: 'ScanDevice',
   Log: 'Log',
   Session: 'Session'
 } as const
@@ -402,7 +403,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "log" | "session"
+    modelProps: "user" | "scanDevice" | "log" | "session"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -477,6 +478,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    ScanDevice: {
+      payload: Prisma.$ScanDevicePayload<ExtArgs>
+      fields: Prisma.ScanDeviceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ScanDeviceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ScanDeviceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>
+        }
+        findFirst: {
+          args: Prisma.ScanDeviceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ScanDeviceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>
+        }
+        findMany: {
+          args: Prisma.ScanDeviceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>[]
+        }
+        create: {
+          args: Prisma.ScanDeviceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>
+        }
+        createMany: {
+          args: Prisma.ScanDeviceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ScanDeviceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>[]
+        }
+        delete: {
+          args: Prisma.ScanDeviceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>
+        }
+        update: {
+          args: Prisma.ScanDeviceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>
+        }
+        deleteMany: {
+          args: Prisma.ScanDeviceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ScanDeviceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ScanDeviceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>[]
+        }
+        upsert: {
+          args: Prisma.ScanDeviceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScanDevicePayload>
+        }
+        aggregate: {
+          args: Prisma.ScanDeviceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScanDevice>
+        }
+        groupBy: {
+          args: Prisma.ScanDeviceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScanDeviceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ScanDeviceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScanDeviceCountAggregateOutputType> | number
         }
       }
     }
@@ -686,10 +761,25 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ScanDeviceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  location: 'location',
+  serialNumber: 'serialNumber',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ScanDeviceScalarFieldEnum = (typeof ScanDeviceScalarFieldEnum)[keyof typeof ScanDeviceScalarFieldEnum]
+
+
 export const LogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   action: 'action',
+  deviceId: 'deviceId',
   createdAt: 'createdAt'
 } as const
 
@@ -701,7 +791,8 @@ export const SessionScalarFieldEnum = {
   userId: 'userId',
   inTime: 'inTime',
   outTime: 'outTime',
-  totalTime: 'totalTime'
+  totalTime: 'totalTime',
+  deviceId: 'deviceId'
 } as const
 
 export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
@@ -818,6 +909,13 @@ export type EnumActionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'ActionType[]'
  */
 export type ListEnumActionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ActionType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -959,6 +1057,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  scanDevice?: Prisma.ScanDeviceOmit
   log?: Prisma.LogOmit
   session?: Prisma.SessionOmit
 }

@@ -29,6 +29,13 @@ export async function GET() {
             rfidNumber: true,
           },
         },
+        device: {
+          select: {
+            name: true,
+            type: true,
+            location: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",

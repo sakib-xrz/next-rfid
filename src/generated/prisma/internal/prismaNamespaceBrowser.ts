@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  ScanDevice: 'ScanDevice',
   Log: 'Log',
   Session: 'Session'
 } as const
@@ -91,10 +92,25 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ScanDeviceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  location: 'location',
+  serialNumber: 'serialNumber',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ScanDeviceScalarFieldEnum = (typeof ScanDeviceScalarFieldEnum)[keyof typeof ScanDeviceScalarFieldEnum]
+
+
 export const LogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   action: 'action',
+  deviceId: 'deviceId',
   createdAt: 'createdAt'
 } as const
 
@@ -106,7 +122,8 @@ export const SessionScalarFieldEnum = {
   userId: 'userId',
   inTime: 'inTime',
   outTime: 'outTime',
-  totalTime: 'totalTime'
+  totalTime: 'totalTime',
+  deviceId: 'deviceId'
 } as const
 
 export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]

@@ -12,6 +12,7 @@ const links = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/logs", label: "Logs" },
   { href: "/admin/sessions", label: "Sessions" },
+  { href: "/admin/devices", label: "Devices" },
 ];
 
 export function AdminNav() {

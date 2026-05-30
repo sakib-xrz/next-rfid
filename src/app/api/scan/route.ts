@@ -17,6 +17,24 @@ export async function POST(request: Request) {
 
     const prisma = getPrismaClient();
     const normalizedRfid = parsed.data.rfid_number.trim();
+    const deviceId = parsed.data.device_id;
+
+    // Look up the device and verify it's active
+    const device = await prisma.scanDevice.findUnique({
+      where: { id: deviceId },
+      select: { id: true, type: true, isActive: true, name: true },
+    });
+
+    if (!device) {
+      throw new ApiError("Scan device not found", 400);
+    }
+
+    if (!device.isActive) {
+      throw new ApiError("Scan device is inactive", 400);
+    }
+
+    // Derive the action from the device type
+    const action = device.type;
 
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.findFirst({
@@ -38,7 +56,7 @@ export async function POST(request: Request) {
 
       const now = new Date();
 
-      if (parsed.data.action === "IN") {
+      if (action === "IN") {
         const existingSession = await tx.session.findFirst({
           where: {
             userId: user.id,
@@ -57,6 +75,7 @@ export async function POST(request: Request) {
           data: {
             userId: user.id,
             inTime: now,
+            deviceId: device.id,
           },
         });
 
@@ -64,6 +83,7 @@ export async function POST(request: Request) {
           data: {
             userId: user.id,
             action: "IN",
+            deviceId: device.id,
             createdAt: now,
           },
         });
@@ -105,6 +125,7 @@ export async function POST(request: Request) {
           data: {
             userId: user.id,
             action: "OUT",
+            deviceId: device.id,
             createdAt: now,
           },
         });
@@ -112,7 +133,7 @@ export async function POST(request: Request) {
 
       return {
         name: user.name,
-        action: parsed.data.action,
+        action,
       };
     });
 
@@ -126,3 +147,4 @@ export async function POST(request: Request) {
     return errorResponse(error);
   }
 }
+

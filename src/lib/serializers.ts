@@ -1,4 +1,4 @@
-import type { ActionType, CourseType, LogRow, RoleType, SessionRow, StatusType, UserRow } from "@/lib/types";
+import type { ActionType, CourseType, LogRow, RoleType, ScanDeviceRow, SessionRow, StatusType, UserRow } from "@/lib/types";
 
 type UserLike = {
   id: string;
@@ -20,6 +20,23 @@ type RelatedUserLike = {
   email: string;
   rfidNumber: string | null;
 };
+
+type ScanDeviceLike = {
+  id: string;
+  name: string;
+  type: string;
+  location: string;
+  serialNumber: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type RelatedDeviceLike = {
+  name: string;
+  type: string;
+  location: string;
+} | null;
 
 export function serializeUser(user: UserLike): UserRow {
   return {
@@ -48,19 +65,46 @@ export function serializeRelatedUser(user: RelatedUserLike | null) {
   };
 }
 
+export function serializeScanDevice(device: ScanDeviceLike): ScanDeviceRow {
+  return {
+    id: device.id,
+    name: device.name,
+    type: device.type as ActionType,
+    location: device.location,
+    serial_number: device.serialNumber,
+    is_active: device.isActive,
+    created_at: device.createdAt.toISOString(),
+    updated_at: device.updatedAt.toISOString(),
+  };
+}
+
+function serializeRelatedDevice(device: RelatedDeviceLike) {
+  if (!device) return null;
+
+  return {
+    name: device.name,
+    type: device.type as ActionType,
+    location: device.location,
+  };
+}
+
 export function serializeLog(log: {
   id: string;
   userId: string;
   action: string;
+  deviceId: string | null;
   createdAt: Date;
   user: RelatedUserLike | null;
+  device: RelatedDeviceLike;
 }): LogRow {
   return {
     id: log.id,
     user_id: log.userId,
     action: log.action as ActionType,
+    device_id: log.deviceId,
     created_at: log.createdAt.toISOString(),
     users: serializeRelatedUser(log.user),
+    device: serializeRelatedDevice(log.device),
   };
 }
 
@@ -70,7 +114,9 @@ export function serializeSession(session: {
   inTime: Date;
   outTime: Date | null;
   totalTime: number | null;
+  deviceId: string | null;
   user: RelatedUserLike | null;
+  device: RelatedDeviceLike;
 }): SessionRow {
   return {
     id: session.id,
@@ -78,6 +124,8 @@ export function serializeSession(session: {
     in_time: session.inTime.toISOString(),
     out_time: session.outTime?.toISOString() ?? null,
     total_time: session.totalTime,
+    device_id: session.deviceId,
     users: serializeRelatedUser(session.user),
+    device: serializeRelatedDevice(session.device),
   };
 }

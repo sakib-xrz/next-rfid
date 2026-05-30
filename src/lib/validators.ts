@@ -14,5 +14,12 @@ export const registerSchema = z.object({
 
 export const scanSchema = z.object({
   rfid_number: z.string().trim().min(1).max(24),
-  action: z.enum(ACTION_OPTIONS),
+  device_id: z.string().uuid(),
+});
+
+export const createDeviceSchema = z.object({
+  name: z.string().min(2, "Device name is required"),
+  type: z.enum(ACTION_OPTIONS),
+  location: z.string().min(1, "Location is required"),
+  serial_number: z.string().trim().optional(),
 });
