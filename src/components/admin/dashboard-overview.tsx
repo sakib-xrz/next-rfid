@@ -64,24 +64,33 @@ export function DashboardOverview() {
       value: stats.totalActiveUsers,
       icon: UserCheck,
       hint: "Users allowed to scan",
+      bar: "bg-primary",
     },
     {
       title: "Currently Inside",
       value: stats.currentlyInside,
       icon: Activity,
       hint: "Open sessions now",
+      bar: "bg-amber-400",
     },
     {
       title: "Pending Requests",
       value: stats.pendingRequests,
       icon: Clock3,
       hint: "Awaiting admin action",
+      bar: "bg-rose-400",
     },
   ];
 
   return (
     <section className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-heading text-xl font-semibold">Live Metrics</h2>
+          <p className="text-sm text-muted-foreground">
+            Refreshed on demand from the admin API.
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
@@ -102,14 +111,19 @@ export function DashboardOverview() {
         </Button>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
-        {cards.map((card) => (
-          <Card key={card.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <card.icon className="size-4 text-muted-foreground" />
+        {cards.map(({ icon: Icon, ...card }) => (
+          <Card key={card.title} className="overflow-hidden">
+            <div className={`h-1 ${card.bar}`} />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm">{card.title}</CardTitle>
+              <span className="flex size-9 items-center justify-center rounded-lg bg-muted text-primary">
+                <Icon className="size-4" />
+              </span>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-semibold">{loading ? "-" : card.value}</p>
+              <p className="font-heading text-4xl font-semibold">
+                {loading ? "-" : card.value}
+              </p>
               <p className="text-xs text-muted-foreground">{card.hint}</p>
             </CardContent>
           </Card>

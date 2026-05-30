@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, UploadCloud } from "lucide-react";
+import { BadgeCheck, Loader2, UploadCloud } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { COURSE_OPTIONS } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -39,7 +40,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function RequestJoinDialog() {
+export function RequestJoinDialog({
+  triggerClassName,
+}: {
+  triggerClassName?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -111,90 +116,112 @@ export function RequestJoinDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="h-11 rounded-full px-6">
-          Request to Join
+        <Button size="lg" className={cn("px-5", triggerClassName)}>
+          <BadgeCheck className="size-4" />
+          Request Access
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Join Car Attendance System</DialogTitle>
+          <DialogTitle>Request Gate Access</DialogTitle>
           <DialogDescription>
             Fill in your profile and upload both sides of your driving license.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Name</Label>
-              <Input {...form.register("name")} placeholder="Full name" />
-              <p className="text-xs text-destructive">{form.formState.errors.name?.message}</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Email</Label>
-              <Input {...form.register("email")} placeholder="name@company.com" />
-              <p className="text-xs text-destructive">{form.formState.errors.email?.message}</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Phone</Label>
-              <Input {...form.register("phone")} placeholder="+6012XXXXXXX" />
-              <p className="text-xs text-destructive">{form.formState.errors.phone?.message}</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Car Number</Label>
-              <Input {...form.register("car_number")} placeholder="WXY 1234" />
-              <p className="text-xs text-destructive">
-                {form.formState.errors.car_number?.message}
-              </p>
-            </div>
-            <div className="space-y-1.5 md:col-span-2">
-              <Label>Course</Label>
-              <Controller
-                control={form.control}
-                name="course"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COURSE_OPTIONS.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option.replace("_", " ")}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              <p className="text-xs text-destructive">{form.formState.errors.course?.message}</p>
+          <div className="rounded-lg border bg-muted/35 p-3 sm:p-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Name</Label>
+                <Input {...form.register("name")} placeholder="Full name" />
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.name?.message}
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Email</Label>
+                <Input
+                  {...form.register("email")}
+                  placeholder="name@company.com"
+                />
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.email?.message}
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Phone</Label>
+                <Input {...form.register("phone")} placeholder="+6012XXXXXXX" />
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.phone?.message}
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Car Number</Label>
+                <Input {...form.register("car_number")} placeholder="WXY 1234" />
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.car_number?.message}
+                </p>
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <Label>Course</Label>
+                <Controller
+                  control={form.control}
+                  name="course"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COURSE_OPTIONS.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option.replace("_", " ")}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.course?.message}
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
+            <div className="min-w-0 space-y-1.5 rounded-lg border bg-card/70 p-3 sm:p-4">
               <Label>License Front</Label>
               <Input
                 type="file"
                 accept="image/*"
                 onChange={(event) =>
-                  form.setValue("licenseFront", event.target.files?.[0] as File, {
-                    shouldValidate: true,
-                  })
+                  form.setValue(
+                    "licenseFront",
+                    event.target.files?.[0] as File,
+                    {
+                      shouldValidate: true,
+                    },
+                  )
                 }
               />
               <p className="text-xs text-destructive">
                 {form.formState.errors.licenseFront?.message}
               </p>
             </div>
-            <div className="space-y-1.5">
+            <div className="min-w-0 space-y-1.5 rounded-lg border bg-card/70 p-3 sm:p-4">
               <Label>License Back</Label>
               <Input
                 type="file"
                 accept="image/*"
                 onChange={(event) =>
-                  form.setValue("licenseBack", event.target.files?.[0] as File, {
-                    shouldValidate: true,
-                  })
+                  form.setValue(
+                    "licenseBack",
+                    event.target.files?.[0] as File,
+                    {
+                      shouldValidate: true,
+                    },
+                  )
                 }
               />
               <p className="text-xs text-destructive">

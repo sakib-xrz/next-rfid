@@ -1,23 +1,31 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono, Manrope, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Car Attendance System",
-  description: "RFID-based car attendance and live session monitoring",
+  title: "GateFlow RFID",
+  description: "Modern RFID car attendance, kiosk scanning, and live campus gate operations.",
 };
 
 export default function RootLayout({
@@ -28,12 +36,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${manrope.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <QueryProvider>
           {children}
-          <Toaster richColors closeButton position="top-right" />
+          <Toaster
+            richColors
+            closeButton
+            position="top-right"
+            toastOptions={{
+              classNames: {
+                toast: "font-sans",
+              },
+            }}
+          />
         </QueryProvider>
       </body>
     </html>

@@ -1,10 +1,10 @@
 "use client";
 
-import { Loader2, Plus, RefreshCw } from "lucide-react";
+import { Loader2, MapPin, Plus, RadioTower, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
+import { ActionBadge, DeviceStatusBadge } from "@/components/admin/status-badges";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -141,23 +141,37 @@ export function DevicesManagement() {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <Button onClick={() => setShowAddDialog(true)}>
-          <Plus className="size-4" />
-          Add Device
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={loading}
-          onClick={() => void loadDevices()}
-        >
-          <RefreshCw className="size-4" />
-          Refresh
-        </Button>
+      <div className="glass-panel mb-4 rounded-lg p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="font-heading text-xl font-semibold">
+              Scanner Registry
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {loading
+                ? "Checking devices..."
+                : `${devices.length} devices registered`}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setShowAddDialog(true)}>
+              <Plus className="size-4" />
+              Add Device
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              onClick={() => void loadDevices()}
+            >
+              <RefreshCw className="size-4" />
+              Refresh
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-xl border bg-card">
+      <div className="overflow-hidden rounded-lg border bg-card/90 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -194,27 +208,22 @@ export function DevicesManagement() {
                 <TableRow key={device.id}>
                   <TableCell className="font-medium">{device.name}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={device.type === "IN" ? "default" : "secondary"}
-                    >
-                      {device.type}
-                    </Badge>
+                    <ActionBadge action={device.type} />
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-zinc-500">
-                    {device.serial_number ?? "—"}
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-2">
+                      <RadioTower className="size-3.5" />
+                      {device.serial_number ?? "-"}
+                    </span>
                   </TableCell>
-                  <TableCell>{device.location}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={device.is_active ? "default" : "destructive"}
-                      className={
-                        device.is_active
-                          ? "bg-emerald-600 hover:bg-emerald-700"
-                          : ""
-                      }
-                    >
-                      {device.is_active ? "Active" : "Inactive"}
-                    </Badge>
+                    <span className="inline-flex items-center gap-2">
+                      <MapPin className="size-3.5 text-primary" />
+                      {device.location}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <DeviceStatusBadge active={device.is_active} />
                   </TableCell>
                   <TableCell>
                     {formatMalaysiaDateTime(device.created_at)}
@@ -262,51 +271,55 @@ export function DevicesManagement() {
               check-ins (IN) or check-outs (OUT).
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="device-name">Device Name</Label>
-              <Input
-                id="device-name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g. Main Gate Scanner"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="device-type">Type</Label>
-              <Select
-                value={newType}
-                onValueChange={(value) => setNewType(value as ActionType)}
-              >
-                <SelectTrigger id="device-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="IN">IN (Check-in)</SelectItem>
-                  <SelectItem value="OUT">OUT (Check-out)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="device-location">Location / Gate</Label>
-              <Input
-                id="device-location"
-                value={newLocation}
-                onChange={(e) => setNewLocation(e.target.value)}
-                placeholder="e.g. Gate A, Building B Entrance"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="device-serial">Device Code / Serial Number</Label>
-              <Input
-                id="device-serial"
-                value={newSerialNumber}
-                onChange={(e) => setNewSerialNumber(e.target.value)}
-                placeholder="e.g. COM9, RFID-SN-001 (optional)"
-              />
+          <div className="rounded-lg border bg-muted/35 p-4 mt-5">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="device-name">Device Name</Label>
+                <Input
+                  id="device-name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="e.g. Main Gate Scanner"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-type">Type</Label>
+                <Select
+                  value={newType}
+                  onValueChange={(value) => setNewType(value as ActionType)}
+                >
+                  <SelectTrigger id="device-type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="IN">IN (Check-in)</SelectItem>
+                    <SelectItem value="OUT">OUT (Check-out)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-location">Location / Gate</Label>
+                <Input
+                  id="device-location"
+                  value={newLocation}
+                  onChange={(e) => setNewLocation(e.target.value)}
+                  placeholder="e.g. Gate A, Building B Entrance"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-serial">
+                  Device Code / Serial Number
+                </Label>
+                <Input
+                  id="device-serial"
+                  value={newSerialNumber}
+                  onChange={(e) => setNewSerialNumber(e.target.value)}
+                  placeholder="e.g. COM9, RFID-SN-001 (optional)"
+                />
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-5">
             <Button
               variant="outline"
               onClick={() => {

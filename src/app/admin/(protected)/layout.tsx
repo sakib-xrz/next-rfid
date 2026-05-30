@@ -13,9 +13,11 @@ export default async function ProtectedAdminLayout({
   await requireAdminOrRedirect();
 
   return (
-    <div className="min-h-screen bg-zinc-100">
+    <div className="min-h-screen">
       <AdminNav />
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6">{children}</main>
+      <main className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-4 md:px-6 lg:py-8">
+        {children}
+      </main>
     </div>
   );
 }

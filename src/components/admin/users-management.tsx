@@ -1,9 +1,17 @@
 "use client";
 
-import { Loader2, RefreshCw } from "lucide-react";
+import {
+  BadgeCheck,
+  FileText,
+  Loader2,
+  RefreshCw,
+  Search,
+  XCircle,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { UserStatusBadge } from "@/components/admin/status-badges";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,10 +53,17 @@ const MANAGEABLE_STATUSES = ["ACTIVE", "INACTIVE"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 type ManageableStatus = (typeof MANAGEABLE_STATUSES)[number];
 
+function isManageableStatus(
+  status: UserRow["status"],
+): status is ManageableStatus {
+  return MANAGEABLE_STATUSES.includes(status as ManageableStatus);
+}
+
 export function UsersManagement() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const [rfidInput, setRfidInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -212,36 +227,75 @@ export function UsersManagement() {
     };
   }, [loadUsers]);
 
+  const visibleUsers = users.filter((user) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    return [
+      user.name,
+      user.email,
+      user.phone,
+      user.car_number,
+      user.course ?? "",
+      user.rfid_number ?? "",
+      user.status,
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(query);
+  });
+
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <Select
-          value={statusFilter}
-          onValueChange={(value) => setStatusFilter(value as StatusFilter)}
-        >
-          <SelectTrigger className="w-[190px]">
-            <SelectValue placeholder="Filter users" />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_FILTERS.map((status) => (
-              <SelectItem key={status} value={status}>
-                {status}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={loading}
-          onClick={() => void loadUsers()}
-        >
-          <RefreshCw className="size-4" />
-          Refresh
-        </Button>
+      <div className="glass-panel mb-4 rounded-lg p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="font-heading text-xl font-semibold">Access Queue</h2>
+            <p className="text-sm text-muted-foreground">
+              {loading
+                ? "Loading users..."
+                : `${visibleUsers.length} visible records`}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search users, cars, RFID"
+                className="pl-9"
+              />
+            </div>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+            >
+              <SelectTrigger className="w-full sm:w-[190px]">
+                <SelectValue placeholder="Filter users" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_FILTERS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              onClick={() => void loadUsers()}
+            >
+              <RefreshCw className="size-4" />
+              Refresh
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-xl border bg-card">
+      <div className="overflow-hidden rounded-lg border bg-card/90 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -265,7 +319,7 @@ export function UsersManagement() {
                   Loading users...
                 </TableCell>
               </TableRow>
-            ) : users.length === 0 ? (
+            ) : visibleUsers.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -275,88 +329,101 @@ export function UsersManagement() {
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
+              visibleUsers.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell className="font-semibold">{user.name}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {user.email}
+                  </TableCell>
                   <TableCell>{user.phone}</TableCell>
-                  <TableCell>{user.car_number}</TableCell>
-                  <TableCell>{user.course ?? "-"}</TableCell>
-                  <TableCell>{user.status}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {user.car_number}
+                  </TableCell>
+                  <TableCell>{user.course?.replace("_", " ") ?? "-"}</TableCell>
+                  <TableCell>
+                    <UserStatusBadge status={user.status} />
+                  </TableCell>
                   <TableCell>{formatMalaysiaDateTime(user.created_at)}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={submitting}
-                      onClick={() => void openLicensePreview(user)}
-                    >
-                      License
-                    </Button>
-                    {user.status === "PENDING" ? (
-                      <>
-                        <Button
-                          size="sm"
-                          disabled={submitting}
-                          onClick={() => setSelectedUser(user)}
-                          className="ml-2"
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={submitting}
-                          onClick={() => void handleReject(user.id)}
-                          className="ml-2"
-                        >
-                          Reject
-                        </Button>
-                      </>
-                    ) : (
-                      <div className="ml-2 inline-flex items-center gap-2">
-                        <Select
-                          value={statusDraftByUserId[user.id] ?? user.status}
-                          onValueChange={(value) =>
-                            setStatusDraftByUserId((prev) => ({
-                              ...prev,
-                              [user.id]: value as ManageableStatus,
-                            }))
-                          }
-                          disabled={submitting || statusUpdatingId === user.id}
-                        >
-                          <SelectTrigger className="h-8 w-[140px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {MANAGEABLE_STATUSES.map((status) => (
-                              <SelectItem key={status} value={status}>
-                                {status}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={
-                            submitting ||
-                            statusUpdatingId === user.id ||
-                            (statusDraftByUserId[user.id] ?? user.status) ===
-                              user.status
-                          }
-                          onClick={() =>
-                            void handleStatusUpdate(
-                              user.id,
-                              (statusDraftByUserId[user.id] ??
-                                user.status) as ManageableStatus,
-                            )
-                          }
-                        >
-                          Update
-                        </Button>
-                      </div>
-                    )}
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={submitting}
+                        onClick={() => void openLicensePreview(user)}
+                      >
+                        <FileText className="size-4" />
+                        License
+                      </Button>
+                      {user.status === "PENDING" ? (
+                        <>
+                          <Button
+                            size="sm"
+                            disabled={submitting}
+                            onClick={() => setSelectedUser(user)}
+                          >
+                            <BadgeCheck className="size-4" />
+                            Approve
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            disabled={submitting}
+                            onClick={() => void handleReject(user.id)}
+                          >
+                            <XCircle className="size-4" />
+                            Reject
+                          </Button>
+                        </>
+                      ) : isManageableStatus(user.status) ? (
+                        <>
+                          <Select
+                            value={statusDraftByUserId[user.id] ?? user.status}
+                            onValueChange={(value) =>
+                              setStatusDraftByUserId((prev) => ({
+                                ...prev,
+                                [user.id]: value as ManageableStatus,
+                              }))
+                            }
+                            disabled={submitting || statusUpdatingId === user.id}
+                          >
+                            <SelectTrigger className="h-9 w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {MANAGEABLE_STATUSES.map((status) => (
+                                <SelectItem key={status} value={status}>
+                                  {status}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={
+                              submitting ||
+                              statusUpdatingId === user.id ||
+                              (statusDraftByUserId[user.id] ?? user.status) ===
+                                user.status
+                            }
+                            onClick={() =>
+                              void handleStatusUpdate(
+                                user.id,
+                                (statusDraftByUserId[user.id] ??
+                                  user.status) as ManageableStatus,
+                              )
+                            }
+                          >
+                            Update
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          No action
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -380,22 +447,27 @@ export function UsersManagement() {
               24 characters.
             </DialogDescription>
           </DialogHeader>
-          <Input
-            autoFocus
-            value={rfidInput}
-            maxLength={MAX_RFID_LENGTH}
-            onChange={(event) =>
-              setRfidInput(event.target.value.slice(0, MAX_RFID_LENGTH))
-            }
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                void handleApprove();
+          <div className="rounded-lg border bg-muted/35 p-4">
+            <Input
+              autoFocus
+              value={rfidInput}
+              maxLength={MAX_RFID_LENGTH}
+              onChange={(event) =>
+                setRfidInput(event.target.value.slice(0, MAX_RFID_LENGTH))
               }
-            }}
-            placeholder="Scan RFID now..."
-            className="text-center text-lg tracking-widest"
-          />
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  void handleApprove();
+                }
+              }}
+              placeholder="Scan RFID now..."
+              className="text-center font-mono text-lg"
+            />
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              {rfidInput.length}/{MAX_RFID_LENGTH} characters
+            </p>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSelectedUser(null)}>
               Cancel
