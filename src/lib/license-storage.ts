@@ -12,7 +12,10 @@ const MIME_EXTENSIONS: Record<string, string> = {
 };
 
 function getStorageRoot() {
-  return path.resolve(process.env.LICENSE_STORAGE_DIR ?? path.join(process.cwd(), "storage", "licenses"));
+  return path.resolve(
+    process.env.LICENSE_STORAGE_DIR ??
+      path.join(process.cwd(), "storage", "licenses"),
+  );
 }
 
 function getSafeExtension(file: File) {
@@ -28,12 +31,20 @@ function getSafeExtension(file: File) {
 }
 
 export function resolveLicensePath(storagePath: string) {
-  if (!storagePath || storagePath.includes("\0") || storagePath.includes("\\")) {
+  if (
+    !storagePath ||
+    storagePath.includes("\0") ||
+    storagePath.includes("\\")
+  ) {
     throw new ApiError("Invalid storage path", 400);
   }
 
   const normalized = path.posix.normalize(storagePath);
-  if (normalized === ".." || normalized.startsWith("../") || path.posix.isAbsolute(normalized)) {
+  if (
+    normalized === ".." ||
+    normalized.startsWith("../") ||
+    path.posix.isAbsolute(normalized)
+  ) {
     throw new ApiError("Invalid storage path", 400);
   }
 
