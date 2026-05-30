@@ -276,7 +276,6 @@ export default function ScanRfidPage() {
               className="gap-1 px-2.5 sm:px-3"
             >
               <ArrowLeft className="size-4" />
-              <span className="max-[360px]:hidden">Change</span>
               <span className="hidden min-[361px]:inline">Change Device</span>
             </Button>
             <Badge
