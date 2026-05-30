@@ -25,7 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createClient } from "@/lib/supabase/client";
 import { COURSE_OPTIONS } from "@/lib/types";
 
 const formSchema = z.object({
@@ -43,7 +42,6 @@ type FormValues = z.infer<typeof formSchema>;
 export function RequestJoinDialog() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const supabase = createClient();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -57,17 +55,20 @@ export function RequestJoinDialog() {
   });
 
   async function uploadLicense(file: File, type: "front" | "back") {
-    const extension = file.name.split(".").pop() || "jpg";
-    const baseName = file.name.replace(/\.[^/.]+$/, "");
-    const safeName = baseName.replace(/[^a-zA-Z0-9-]/g, "-");
-    const path = `requests/${type}-${file.lastModified}-${safeName}.${extension}`;
-    const { error } = await supabase.storage.from("licenses").upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-    });
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("side", type);
 
-    if (error) throw error;
-    return path;
+    const response = await fetch("/api/licenses/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? "Upload failed");
+    }
+
+    return payload.path as string;
   }
 
   async function onSubmit(values: FormValues) {

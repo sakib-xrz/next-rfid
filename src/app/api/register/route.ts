@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validators";
+
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
@@ -15,33 +18,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const admin = createAdminSupabaseClient();
+    const prisma = getPrismaClient();
     const payload = parsed.data;
 
-    const { error } = await admin.from("users").insert({
-      name: payload.name,
-      email: payload.email.toLowerCase(),
-      phone: payload.phone,
-      car_number: payload.car_number,
-      course: payload.course,
-      role: "STUDENT",
-      status: "PENDING",
-      license_front_url: payload.license_front_url,
-      license_back_url: payload.license_back_url,
+    await prisma.user.create({
+      data: {
+        name: payload.name,
+        email: payload.email.toLowerCase(),
+        phone: payload.phone,
+        carNumber: payload.car_number,
+        course: payload.course,
+        role: "STUDENT",
+        status: "PENDING",
+        licenseFrontUrl: payload.license_front_url,
+        licenseBackUrl: payload.license_back_url,
+      },
     });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
 
     return NextResponse.json(
       { message: "Request submitted successfully" },
       { status: 201 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }

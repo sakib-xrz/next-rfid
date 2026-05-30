@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CourseType {
+  DIPLOMA
+  BACHELOR
+  M_SC
+  PHD
+
+  @@map("course_type")
+}
+
+enum RoleType {
+  STUDENT
+  LECTURER
+  STAFF
+  ADMIN
+
+  @@map("role_type")
+}
+
+enum StatusType {
+  PENDING
+  ACTIVE
+  INACTIVE
+  REJECTED
+
+  @@map("status_type")
+}
+
+enum ActionType {
+  IN
+  OUT
+
+  @@map("action_type")
+}
+
+model User {
+  id              String     @id @default(uuid()) @db.Uuid
+  name            String
+  email           String     @unique
+  phone           String
+  carNumber       String     @map("car_number")
+  course          CourseType?
+  role            RoleType   @default(STUDENT)
+  licenseFrontUrl String     @map("license_front_url")
+  licenseBackUrl  String     @map("license_back_url")
+  rfidNumber      String?    @unique @map("rfid_number") @db.VarChar(24)
+  status          StatusType @default(PENDING)
+  passwordHash    String?    @map("password_hash")
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  logs            Log[]
+  sessions        Session[]
+
+  @@index([status])
+  @@index([rfidNumber])
+  @@map("users")
+}
+
+model Log {
+  id        String     @id @default(uuid()) @db.Uuid
+  userId    String     @map("user_id") @db.Uuid
+  action    ActionType
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("logs")
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  inTime    DateTime  @map("in_time") @db.Timestamptz(6)
+  outTime   DateTime? @map("out_time") @db.Timestamptz(6)
+  totalTime Int?      @map("total_time")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([outTime])
+  @@map("sessions")
+}

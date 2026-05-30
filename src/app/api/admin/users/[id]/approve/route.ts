@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdminUser } from "@/lib/admin-auth";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { ApiError, errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
 
 const approveSchema = z.object({
   rfid_number: z.string().trim().min(1).max(24),
@@ -25,26 +26,30 @@ export async function POST(
     }
 
     const { id } = await params;
-    const admin = createAdminSupabaseClient();
+    const prisma = getPrismaClient();
 
-    const { error } = await admin
-      .from("users")
-      .update({
-        rfid_number: parsed.data.rfid_number,
+    const result = await prisma.user.updateMany({
+      where: {
+        id,
+        role: {
+          not: "ADMIN",
+        },
+        status: {
+          in: ["PENDING", "INACTIVE"],
+        },
+      },
+      data: {
+        rfidNumber: parsed.data.rfid_number,
         status: "ACTIVE",
-      })
-      .eq("id", id)
-      .in("status", ["PENDING", "INACTIVE"]);
+      },
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (result.count === 0) {
+      throw new ApiError("User cannot be approved from the current status", 400);
     }
 
     return NextResponse.json({ message: "User approved successfully" });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }

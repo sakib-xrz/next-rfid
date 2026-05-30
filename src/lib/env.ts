@@ -1,12 +1,12 @@
 const missingEnvMessage =
-  "Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY.";
+  "Missing PostgreSQL environment variables. Please set DATABASE_URL and AUTH_SECRET.";
 
-export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-export const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export const databaseUrl = process.env.DATABASE_URL;
+export const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+export const licenseStorageDir = process.env.LICENSE_STORAGE_DIR;
 
-export function assertSupabaseEnv() {
-  if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
+export function assertAppEnv() {
+  if (!databaseUrl || !authSecret) {
     throw new Error(missingEnvMessage);
   }
 }

@@ -1,31 +1,26 @@
 import { redirect } from "next/navigation";
 
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getAdminSession } from "@/lib/admin-session";
+import { getPrismaClient } from "@/lib/prisma";
 
 export async function requireAdminUser() {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const session = await getAdminSession();
 
-  if (authError || !user?.email) {
+  if (!session?.email) {
     return { ok: false as const, reason: "Unauthorized" };
   }
 
-  const admin = createAdminSupabaseClient();
-  const { data: dbUser, error } = await admin
-    .from("users")
-    .select("id, email, role, status")
-    .eq("email", user.email.toLowerCase())
-    .single();
+  const prisma = getPrismaClient();
+  const dbUser = await prisma.user.findUnique({
+    where: { email: session.email.toLowerCase() },
+    select: { id: true, email: true, role: true, status: true },
+  });
 
-  if (error || !dbUser || dbUser.role !== "ADMIN") {
+  if (!dbUser || dbUser.role !== "ADMIN" || dbUser.status !== "ACTIVE") {
     return { ok: false as const, reason: "Forbidden" };
   }
 
-  return { ok: true as const, authUser: user, dbUser };
+  return { ok: true as const, authUser: session, dbUser };
 }
 
 export async function requireAdminOrRedirect() {

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { requireAdminUser } from "@/lib/admin-auth";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { ApiError, errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
 
 export async function POST(
   _request: Request,
@@ -14,23 +15,27 @@ export async function POST(
 
   try {
     const { id } = await params;
-    const admin = createAdminSupabaseClient();
+    const prisma = getPrismaClient();
 
-    const { error } = await admin
-      .from("users")
-      .update({ status: "REJECTED" })
-      .eq("id", id)
-      .eq("status", "PENDING");
+    const result = await prisma.user.updateMany({
+      where: {
+        id,
+        role: {
+          not: "ADMIN",
+        },
+        status: "PENDING",
+      },
+      data: {
+        status: "REJECTED",
+      },
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (result.count === 0) {
+      throw new ApiError("Only pending users can be rejected", 400);
     }
 
     return NextResponse.json({ message: "User rejected successfully" });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }

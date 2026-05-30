@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdminUser } from "@/lib/admin-auth";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
 
 const updateStatusSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE", "REJECTED"]),
@@ -25,14 +26,18 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
     }
 
-    const admin = createAdminSupabaseClient();
-    const { data: currentUser, error: currentUserError } = await admin
-      .from("users")
-      .select("id, status, role, rfid_number")
-      .eq("id", id)
-      .single();
+    const prisma = getPrismaClient();
+    const currentUser = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        role: true,
+        rfidNumber: true,
+      },
+    });
 
-    if (currentUserError || !currentUser) {
+    if (!currentUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
@@ -47,20 +52,17 @@ export async function PATCH(
       );
     }
 
-    if (parsed.data.status === "ACTIVE" && !currentUser.rfid_number) {
+    if (parsed.data.status === "ACTIVE" && !currentUser.rfidNumber) {
       return NextResponse.json({ error: "RFID is required before setting user active" }, { status: 400 });
     }
 
-    const { error } = await admin.from("users").update({ status: parsed.data.status }).eq("id", id);
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
+    await prisma.user.update({
+      where: { id },
+      data: { status: parsed.data.status },
+    });
 
     return NextResponse.json({ message: "User status updated" });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }

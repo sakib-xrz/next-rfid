@@ -423,7 +423,7 @@ export function UsersManagement() {
           <DialogHeader>
             <DialogTitle>License Documents</DialogTitle>
             <DialogDescription>
-              Signed URLs expire after 5 minutes.
+              Admin-only license preview links.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { requireAdminUser } from "@/lib/admin-auth";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
 
 export async function GET() {
   const adminCheck = await requireAdminUser();
@@ -10,39 +11,42 @@ export async function GET() {
   }
 
   try {
-    const admin = createAdminSupabaseClient();
+    const prisma = getPrismaClient();
     const [activeUsers, insideUsers, pendingUsers] = await Promise.all([
-      admin
-        .from("users")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "ACTIVE")
-        .neq("role", "ADMIN"),
-      admin
-        .from("sessions")
-        .select("id,users!inner(role)", { count: "exact", head: true })
-        .is("out_time", null)
-        .neq("users.role", "ADMIN"),
-      admin
-        .from("users")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "PENDING")
-        .neq("role", "ADMIN"),
+      prisma.user.count({
+        where: {
+          status: "ACTIVE",
+          role: {
+            not: "ADMIN",
+          },
+        },
+      }),
+      prisma.session.count({
+        where: {
+          outTime: null,
+          user: {
+            role: {
+              not: "ADMIN",
+            },
+          },
+        },
+      }),
+      prisma.user.count({
+        where: {
+          status: "PENDING",
+          role: {
+            not: "ADMIN",
+          },
+        },
+      }),
     ]);
 
-    if (activeUsers.error || insideUsers.error || pendingUsers.error) {
-      const firstError = activeUsers.error ?? insideUsers.error ?? pendingUsers.error;
-      return NextResponse.json({ error: firstError?.message ?? "Failed to load dashboard stats" }, { status: 400 });
-    }
-
     return NextResponse.json({
-      totalActiveUsers: activeUsers.count ?? 0,
-      currentlyInside: insideUsers.count ?? 0,
-      pendingRequests: pendingUsers.count ?? 0,
+      totalActiveUsers: activeUsers,
+      currentlyInside: insideUsers,
+      pendingRequests: pendingUsers,
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }

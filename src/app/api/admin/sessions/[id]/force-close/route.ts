@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { requireAdminUser } from "@/lib/admin-auth";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { ApiError, errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
 
 export async function POST(
   _request: Request,
@@ -14,20 +15,34 @@ export async function POST(
 
   try {
     const { id } = await params;
-    const admin = createAdminSupabaseClient();
-    const { error } = await admin.rpc("force_close_session", {
-      p_session_id: id,
+    const prisma = getPrismaClient();
+    const now = new Date();
+
+    const session = await prisma.session.findFirst({
+      where: {
+        id,
+        outTime: null,
+      },
+      select: {
+        id: true,
+        inTime: true,
+      },
     });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!session) {
+      throw new ApiError("Session is already closed or does not exist", 400);
     }
+
+    await prisma.session.update({
+      where: { id: session.id },
+      data: {
+        outTime: now,
+        totalTime: Math.max(0, Math.floor((now.getTime() - session.inTime.getTime()) / 1000)),
+      },
+    });
 
     return NextResponse.json({ message: "Session force-closed successfully" });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }

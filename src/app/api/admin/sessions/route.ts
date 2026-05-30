@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { requireAdminUser } from "@/lib/admin-auth";
-import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { errorResponse } from "@/lib/api";
+import { getPrismaClient } from "@/lib/prisma";
+import { serializeSession } from "@/lib/serializers";
 
 export async function GET() {
   const adminCheck = await requireAdminUser();
@@ -10,23 +12,32 @@ export async function GET() {
   }
 
   try {
-    const admin = createAdminSupabaseClient();
-    const { data, error } = await admin
-      .from("sessions")
-      .select("id,user_id,in_time,out_time,total_time,users!inner(name,rfid_number,email,role)")
-      .neq("users.role", "ADMIN")
-      .order("in_time", { ascending: false })
-      .limit(300);
+    const prisma = getPrismaClient();
+    const sessions = await prisma.session.findMany({
+      where: {
+        user: {
+          role: {
+            not: "ADMIN",
+          },
+        },
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            rfidNumber: true,
+          },
+        },
+      },
+      orderBy: {
+        inTime: "desc",
+      },
+      take: 300,
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-
-    return NextResponse.json({ sessions: data ?? [] });
+    return NextResponse.json({ sessions: sessions.map(serializeSession) });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
-    );
+    return errorResponse(error);
   }
 }
