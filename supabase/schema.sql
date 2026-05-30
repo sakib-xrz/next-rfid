@@ -7,7 +7,15 @@ begin
   end if;
 
   if not exists (select 1 from pg_type where typname = 'role_type') then
-    create type public.role_type as enum ('STUDENT', 'LECTURER', 'STAFF', 'ADMIN');
+    create type public.role_type as enum ('STUDENT', 'LECTURER', 'STAFF', 'VISITOR', 'ADMIN');
+  elsif not exists (
+    select 1
+    from pg_enum e
+    join pg_type t on t.oid = e.enumtypid
+    where t.typname = 'role_type'
+      and e.enumlabel = 'VISITOR'
+  ) then
+    alter type public.role_type add value 'VISITOR';
   end if;
 
   if not exists (select 1 from pg_type where typname = 'status_type') then
@@ -21,6 +29,7 @@ end $$;
 
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
+  id_from_institution text not null unique,
   name text not null,
   email text not null unique,
   phone text not null,
@@ -36,6 +45,19 @@ create table if not exists public.users (
     role <> 'STUDENT' or course is not null
   )
 );
+
+alter table if exists public.users
+add column if not exists id_from_institution text;
+
+update public.users
+set id_from_institution = id::text
+where id_from_institution is null;
+
+alter table if exists public.users
+alter column id_from_institution set not null;
+
+create unique index if not exists users_id_from_institution_key
+on public.users(id_from_institution);
 
 create table if not exists public.logs (
   id uuid primary key default gen_random_uuid(),
@@ -54,6 +76,7 @@ create table if not exists public.sessions (
 
 create index if not exists users_status_idx on public.users(status);
 create index if not exists users_rfid_number_idx on public.users(rfid_number);
+create index if not exists users_id_from_institution_idx on public.users(id_from_institution);
 create index if not exists logs_user_id_idx on public.logs(user_id);
 create index if not exists logs_created_at_idx on public.logs(created_at desc);
 create index if not exists sessions_user_id_idx on public.sessions(user_id);

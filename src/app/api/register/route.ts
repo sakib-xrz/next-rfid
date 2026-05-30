@@ -23,12 +23,13 @@ export async function POST(request: Request) {
 
     await prisma.user.create({
       data: {
+        idFromInstitution: payload.institution_id,
         name: payload.name,
         email: payload.email.toLowerCase(),
         phone: payload.phone,
         carNumber: payload.car_number,
-        course: payload.course,
-        role: "STUDENT",
+        course: payload.course ?? null,
+        role: payload.role,
         status: "PENDING",
         licenseFrontUrl: payload.license_front_url,
         licenseBackUrl: payload.license_back_url,

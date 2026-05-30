@@ -47,6 +47,7 @@ try {
     `
       INSERT INTO users (
         id,
+        id_from_institution,
         name,
         email,
         phone,
@@ -58,9 +59,10 @@ try {
         license_back_url,
         password_hash
       )
-      VALUES ($1, $2, $3, 'N/A', 'ADMIN-CAR', 'ADMIN', 'ACTIVE', NULL, 'admin/front-placeholder', 'admin/back-placeholder', $4)
+      VALUES ($1, $2, $3, $4, 'N/A', 'ADMIN-CAR', 'ADMIN', 'ACTIVE', NULL, 'admin/front-placeholder', 'admin/back-placeholder', $5)
       ON CONFLICT (email)
       DO UPDATE SET
+        id_from_institution = EXCLUDED.id_from_institution,
         name = EXCLUDED.name,
         role = 'ADMIN',
         status = 'ACTIVE',
@@ -68,7 +70,7 @@ try {
         password_hash = EXCLUDED.password_hash
       RETURNING id, email
     `,
-    [randomUUID(), name, email, passwordHash]
+    [randomUUID(), `ADMIN-${email}`, name, email, passwordHash]
   );
 
   const admin = result.rows[0];

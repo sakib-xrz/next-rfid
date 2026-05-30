@@ -1,11 +1,19 @@
 export const COURSE_OPTIONS = ["DIPLOMA", "BACHELOR", "M_SC", "PHD"] as const;
 export const ACTION_OPTIONS = ["IN", "OUT"] as const;
+export const USER_ROLE_OPTIONS = [
+  "STUDENT",
+  "LECTURER",
+  "STAFF",
+  "VISITOR",
+] as const;
+export const ROLE_OPTIONS = [...USER_ROLE_OPTIONS, "ADMIN"] as const;
 
 export type CourseType = (typeof COURSE_OPTIONS)[number];
 export type ActionType = (typeof ACTION_OPTIONS)[number];
+export type UserAssignableRoleType = (typeof USER_ROLE_OPTIONS)[number];
 
 export type StatusType = "PENDING" | "ACTIVE" | "INACTIVE" | "REJECTED";
-export type RoleType = "STUDENT" | "LECTURER" | "STAFF" | "ADMIN";
+export type RoleType = (typeof ROLE_OPTIONS)[number];
 
 export type ScanDeviceRow = {
   id: string;
@@ -41,6 +49,7 @@ export type RfidReaderStatus = {
 
 export type UserRow = {
   id: string;
+  institution_id: string;
   name: string;
   email: string;
   phone: string;

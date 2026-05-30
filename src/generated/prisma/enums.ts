@@ -23,6 +23,7 @@ export const RoleType = {
   STUDENT: 'STUDENT',
   LECTURER: 'LECTURER',
   STAFF: 'STAFF',
+  VISITOR: 'VISITOR',
   ADMIN: 'ADMIN'
 } as const
 

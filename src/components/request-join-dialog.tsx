@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BadgeCheck, Loader2, UploadCloud } from "lucide-react";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -25,18 +25,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { COURSE_OPTIONS } from "@/lib/types";
+import { COURSE_OPTIONS, USER_ROLE_OPTIONS } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().min(6, "Phone is required"),
-  car_number: z.string().min(2, "Car number is required"),
-  course: z.enum(COURSE_OPTIONS),
-  licenseFront: z.instanceof(File, { message: "Front image is required" }),
-  licenseBack: z.instanceof(File, { message: "Back image is required" }),
-});
+const formSchema = z
+  .object({
+    institution_id: z.string().min(1, "Institution ID is required"),
+    name: z.string().min(2, "Name is required"),
+    email: z.string().email("Valid email is required"),
+    phone: z.string().min(6, "Phone is required"),
+    car_number: z.string().min(2, "Car number is required"),
+    role: z.enum(USER_ROLE_OPTIONS),
+    course: z.enum(COURSE_OPTIONS).optional(),
+    licenseFront: z.instanceof(File, { message: "Front image is required" }),
+    licenseBack: z.instanceof(File, { message: "Back image is required" }),
+  })
+  .superRefine((value, context) => {
+    if (value.role === "STUDENT" && !value.course) {
+      context.addIssue({
+        code: "custom",
+        message: "Course is required for students",
+        path: ["course"],
+      });
+    }
+  });
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -51,12 +63,18 @@ export function RequestJoinDialog({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      institution_id: "",
       name: "",
       email: "",
       phone: "",
       car_number: "",
+      role: "STUDENT",
       course: "DIPLOMA",
     },
+  });
+  const selectedRole = useWatch({
+    control: form.control,
+    name: "role",
   });
 
   async function uploadLicense(file: File, type: "front" | "back") {
@@ -88,11 +106,13 @@ export function RequestJoinDialog({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          institution_id: values.institution_id,
           name: values.name,
           email: values.email,
           phone: values.phone,
           car_number: values.car_number,
-          course: values.course,
+          role: values.role,
+          course: values.role === "STUDENT" ? values.course : undefined,
           license_front_url: frontPath,
           license_back_url: backPath,
         }),
@@ -132,6 +152,16 @@ export function RequestJoinDialog({
           <div className="rounded-lg border bg-muted/35 p-3 sm:p-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
+                <Label>Institution ID</Label>
+                <Input
+                  {...form.register("institution_id")}
+                  placeholder="Student, staff, or visitor ID"
+                />
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.institution_id?.message}
+                </p>
+              </div>
+              <div className="space-y-1.5">
                 <Label>Name</Label>
                 <Input {...form.register("name")} placeholder="Full name" />
                 <p className="text-xs text-destructive">
@@ -162,20 +192,20 @@ export function RequestJoinDialog({
                   {form.formState.errors.car_number?.message}
                 </p>
               </div>
-              <div className="space-y-1.5 md:col-span-2">
-                <Label>Course</Label>
+              <div className="space-y-1.5">
+                <Label>Role</Label>
                 <Controller
                   control={form.control}
-                  name="course"
+                  name="role"
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {COURSE_OPTIONS.map((option) => (
+                        {USER_ROLE_OPTIONS.map((option) => (
                           <SelectItem key={option} value={option}>
-                            {option.replace("_", " ")}
+                            {option}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -183,9 +213,38 @@ export function RequestJoinDialog({
                   )}
                 />
                 <p className="text-xs text-destructive">
-                  {form.formState.errors.course?.message}
+                  {form.formState.errors.role?.message}
                 </p>
               </div>
+              {selectedRole === "STUDENT" ? (
+                <div className="space-y-1.5">
+                  <Label>Course</Label>
+                  <Controller
+                    control={form.control}
+                    name="course"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {COURSE_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option.replace("_", " ")}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <p className="text-xs text-destructive">
+                    {form.formState.errors.course?.message}
+                  </p>
+                </div>
+              ) : null}
             </div>
           </div>
 

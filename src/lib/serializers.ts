@@ -2,6 +2,7 @@ import type { ActionType, CourseType, LogRow, RoleType, ScanDeviceRow, SessionRo
 
 type UserLike = {
   id: string;
+  idFromInstitution: string;
   name: string;
   email: string;
   phone: string;
@@ -41,6 +42,7 @@ type RelatedDeviceLike = {
 export function serializeUser(user: UserLike): UserRow {
   return {
     id: user.id,
+    institution_id: user.idFromInstitution,
     name: user.name,
     email: user.email,
     phone: user.phone,

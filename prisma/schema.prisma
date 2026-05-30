@@ -20,6 +20,7 @@ enum RoleType {
   STUDENT
   LECTURER
   STAFF
+  VISITOR
   ADMIN
 
   @@map("role_type")
@@ -42,24 +43,26 @@ enum ActionType {
 }
 
 model User {
-  id              String     @id @default(uuid()) @db.Uuid
-  name            String
-  email           String     @unique
-  phone           String
-  carNumber       String     @map("car_number")
-  course          CourseType?
-  role            RoleType   @default(STUDENT)
-  licenseFrontUrl String     @map("license_front_url")
-  licenseBackUrl  String     @map("license_back_url")
-  rfidNumber      String?    @unique @map("rfid_number") @db.VarChar(24)
-  status          StatusType @default(PENDING)
-  passwordHash    String?    @map("password_hash")
-  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  logs            Log[]
-  sessions        Session[]
+  id                String      @id @default(uuid()) @db.Uuid
+  idFromInstitution String      @unique @map("id_from_institution")
+  name              String
+  email             String      @unique
+  phone             String
+  carNumber         String      @map("car_number")
+  course            CourseType?
+  role              RoleType    @default(STUDENT)
+  licenseFrontUrl   String      @map("license_front_url")
+  licenseBackUrl    String      @map("license_back_url")
+  rfidNumber        String?     @unique @map("rfid_number") @db.VarChar(24)
+  status            StatusType  @default(PENDING)
+  passwordHash      String?     @map("password_hash")
+  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  logs              Log[]
+  sessions          Session[]
 
   @@index([status])
   @@index([rfidNumber])
+  @@index([idFromInstitution])
   @@map("users")
 }
 

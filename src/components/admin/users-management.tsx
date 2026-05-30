@@ -4,6 +4,7 @@ import {
   BadgeCheck,
   FileText,
   Loader2,
+  RadioTower,
   RefreshCw,
   Search,
   XCircle,
@@ -38,9 +39,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatMalaysiaDateTime } from "@/lib/time";
-import type { UserRow } from "@/lib/types";
+import type {
+  RfidReaderPortStatus,
+  RfidReaderStatus,
+  UserRow,
+} from "@/lib/types";
 
 const MAX_RFID_LENGTH = 24;
+const RFID_CAPTURE_POLL_MS = 1000;
 const STATUS_FILTERS = [
   "ALL",
   "PENDING",
@@ -59,6 +65,33 @@ function isManageableStatus(
   return MANAGEABLE_STATUSES.includes(status as ManageableStatus);
 }
 
+function isReaderStatus(payload: unknown): payload is RfidReaderStatus {
+  return (
+    typeof payload === "object" &&
+    payload !== null &&
+    "ports" in payload &&
+    Array.isArray(payload.ports)
+  );
+}
+
+function getNewestCapturedPort(
+  ports: RfidReaderPortStatus[],
+  startedAt: string,
+) {
+  return ports
+    .filter(
+      (port) =>
+        port.last_epc &&
+        port.last_seen_at &&
+        new Date(port.last_seen_at).getTime() > new Date(startedAt).getTime(),
+    )
+    .sort(
+      (first, second) =>
+        new Date(second.last_seen_at ?? 0).getTime() -
+        new Date(first.last_seen_at ?? 0).getTime(),
+    )[0];
+}
+
 export function UsersManagement() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +99,13 @@ export function UsersManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const [rfidInput, setRfidInput] = useState("");
+  const [rfidCaptureStartedAt, setRfidCaptureStartedAt] = useState<
+    string | null
+  >(null);
+  const [rfidScannerMessage, setRfidScannerMessage] = useState(
+    "Waiting for scanner...",
+  );
+  const [rfidScannerConnected, setRfidScannerConnected] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
   const [statusDraftByUserId, setStatusDraftByUserId] = useState<
@@ -146,14 +186,29 @@ export function UsersManagement() {
       if (!response.ok)
         throw new Error(payload.error ?? "Failed to approve user");
       toast.success("User approved and activated");
-      setSelectedUser(null);
-      setRfidInput("");
+      closeAssignDialog();
       await loadUsers();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Approve failed");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function openAssignDialog(user: UserRow) {
+    setSelectedUser(user);
+    setRfidInput("");
+    setRfidCaptureStartedAt(new Date().toISOString());
+    setRfidScannerConnected(false);
+    setRfidScannerMessage("Waiting for next RFID scan...");
+  }
+
+  function closeAssignDialog() {
+    setSelectedUser(null);
+    setRfidInput("");
+    setRfidCaptureStartedAt(null);
+    setRfidScannerConnected(false);
+    setRfidScannerMessage("Waiting for scanner...");
   }
 
   async function handleStatusUpdate(userId: string, status: ManageableStatus) {
@@ -227,6 +282,72 @@ export function UsersManagement() {
     };
   }, [loadUsers]);
 
+  useEffect(() => {
+    if (!selectedUser || !rfidCaptureStartedAt) return;
+
+    let cancelled = false;
+    const captureStartedAt = rfidCaptureStartedAt;
+
+    async function captureLatestRfid() {
+      try {
+        const response = await fetch("/api/rfid/status", { cache: "no-store" });
+        const payload = (await response.json()) as unknown;
+
+        if (!response.ok || !isReaderStatus(payload)) {
+          throw new Error("Unable to read RFID scanner status");
+        }
+
+        if (cancelled) return;
+
+        setRfidScannerConnected(
+          payload.ports.some((port) => port.connected),
+        );
+
+        const capturedPort = getNewestCapturedPort(
+          payload.ports,
+          captureStartedAt,
+        );
+
+        if (capturedPort?.last_epc) {
+          const scannedValue = capturedPort.last_epc.slice(0, MAX_RFID_LENGTH);
+          setRfidInput(scannedValue);
+          setRfidScannerMessage(`Captured from ${capturedPort.device_name}`);
+          return;
+        }
+
+        if (payload.ports.length === 0) {
+          setRfidScannerMessage("No active COM reader is configured");
+        } else if (!payload.ports.some((port) => port.connected)) {
+          setRfidScannerMessage("Waiting for reader connection...");
+        } else {
+          setRfidScannerMessage("Waiting for next RFID scan...");
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setRfidScannerConnected(false);
+          setRfidScannerMessage(
+            error instanceof Error
+              ? error.message
+              : "Unable to read RFID scanner status",
+          );
+        }
+      }
+    }
+
+    const initialTimerId = setTimeout(() => {
+      void captureLatestRfid();
+    }, 0);
+    const intervalId = setInterval(() => {
+      void captureLatestRfid();
+    }, RFID_CAPTURE_POLL_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(initialTimerId);
+      clearInterval(intervalId);
+    };
+  }, [rfidCaptureStartedAt, selectedUser]);
+
   const visibleUsers = users.filter((user) => {
     const query = searchTerm.trim().toLowerCase();
     if (!query) return true;
@@ -235,8 +356,10 @@ export function UsersManagement() {
       user.name,
       user.email,
       user.phone,
+      user.institution_id,
       user.car_number,
       user.course ?? "",
+      user.role,
       user.rfid_number ?? "",
       user.status,
     ]
@@ -263,7 +386,7 @@ export function UsersManagement() {
               <Input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search users, cars, RFID"
+                placeholder="Search users, IDs, cars, RFID"
                 className="pl-9"
               />
             </div>
@@ -295,17 +418,17 @@ export function UsersManagement() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border bg-card/90 shadow-sm">
-        <Table>
+      <div className="overflow-x-auto rounded-lg border bg-card/90 shadow-sm">
+        <Table className="min-w-[1180px]">
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Car Number</TableHead>
               <TableHead>Course</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Requested At</TableHead>
+              <TableHead>License</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -313,7 +436,7 @@ export function UsersManagement() {
             {loading ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={10}
                   className="py-10 text-center text-muted-foreground"
                 >
                   Loading users...
@@ -322,7 +445,7 @@ export function UsersManagement() {
             ) : visibleUsers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={10}
                   className="py-10 text-center text-muted-foreground"
                 >
                   No users found for the selected filter.
@@ -330,8 +453,14 @@ export function UsersManagement() {
               </TableRow>
             ) : (
               visibleUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-semibold">{user.name}</TableCell>
+                <TableRow key={user.id} className="whitespace-nowrap">
+                  <TableCell className="font-semibold">
+                    {user.name}
+                    <div className="font-mono text-xs">
+                      {user.institution_id}
+                      <span className="ml-2 text-primary">{user.role}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {user.email}
                   </TableCell>
@@ -343,36 +472,35 @@ export function UsersManagement() {
                   <TableCell>
                     <UserStatusBadge status={user.status} />
                   </TableCell>
-                  <TableCell>{formatMalaysiaDateTime(user.created_at)}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={submitting}
+                      onClick={() => void openLicensePreview(user)}
+                    >
+                      <FileText className="size-4" />
+                      View
+                    </Button>
+                  </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={submitting}
-                        onClick={() => void openLicensePreview(user)}
-                      >
-                        <FileText className="size-4" />
-                        License
-                      </Button>
+                    <div className="flex items-center justify-end gap-2">
                       {user.status === "PENDING" ? (
                         <>
                           <Button
-                            size="sm"
+                            size="icon"
                             disabled={submitting}
-                            onClick={() => setSelectedUser(user)}
+                            onClick={() => openAssignDialog(user)}
                           >
                             <BadgeCheck className="size-4" />
-                            Approve
                           </Button>
                           <Button
                             variant="destructive"
-                            size="sm"
+                            size="icon"
                             disabled={submitting}
                             onClick={() => void handleReject(user.id)}
                           >
                             <XCircle className="size-4" />
-                            Reject
                           </Button>
                         </>
                       ) : isManageableStatus(user.status) ? (
@@ -405,7 +533,7 @@ export function UsersManagement() {
                               submitting ||
                               statusUpdatingId === user.id ||
                               (statusDraftByUserId[user.id] ?? user.status) ===
-                                user.status
+                              user.status
                             }
                             onClick={() =>
                               void handleStatusUpdate(
@@ -435,7 +563,7 @@ export function UsersManagement() {
       <Dialog
         open={Boolean(selectedUser)}
         onOpenChange={(open) => {
-          if (!open) setSelectedUser(null);
+          if (!open) closeAssignDialog();
         }}
       >
         <DialogContent>
@@ -447,7 +575,19 @@ export function UsersManagement() {
               24 characters.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-lg border bg-muted/35 p-4">
+          <div className="rounded-lg border bg-muted/35 p-4 mt-5">
+            <div className="mb-3 flex items-center justify-between gap-3 rounded-lg border bg-card/70 px-3 py-2 text-sm">
+              <span className="inline-flex min-w-0 items-center gap-2">
+                <RadioTower className="size-4 shrink-0 text-primary" />
+                <span className="min-w-0 break-words">
+                  {rfidScannerMessage}
+                </span>
+              </span>
+              <span
+                className="size-2.5 shrink-0 rounded-full data-[connected=true]:bg-emerald-500 data-[connected=false]:bg-muted-foreground"
+                data-connected={rfidScannerConnected}
+              />
+            </div>
             <Input
               autoFocus
               value={rfidInput}
@@ -468,8 +608,8 @@ export function UsersManagement() {
               {rfidInput.length}/{MAX_RFID_LENGTH} characters
             </p>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedUser(null)}>
+          <DialogFooter className="mt-5">
+            <Button variant="outline" onClick={closeAssignDialog}>
               Cancel
             </Button>
             <Button onClick={() => void handleApprove()} disabled={submitting}>

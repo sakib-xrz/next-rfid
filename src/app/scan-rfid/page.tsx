@@ -50,8 +50,8 @@ function getReaderLabel(
   if (!device.serial_number?.trim()) return "Needs COM Port";
   if (!status) return "Waiting";
   if (status.connected) return "Connected";
-  if (status.state === "connecting") return "Connecting";
-  if (status.state === "reconnecting") return "Reconnecting";
+  if (status.state === "connecting") return "Connecting...";
+  if (status.state === "reconnecting") return "Reconnecting...";
   return "Offline";
 }
 
@@ -286,7 +286,6 @@ export default function ScanRfidPage() {
                           variant={getReaderVariant(device, status)}
                           className="mt-2 gap-1.5"
                         >
-                          {getReaderIcon(status)}
                           {readerLabel}
                         </Badge>
                       </div>
