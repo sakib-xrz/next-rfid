@@ -25,7 +25,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "GateFlow RFID",
-  description: "Modern RFID car attendance, kiosk scanning, and live campus gate operations.",
+  description:
+    "Modern RFID car attendance, kiosk scanning, and live campus gate operations.",
 };
 
 export default function RootLayout({
@@ -41,16 +42,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         <QueryProvider>
           {children}
-          <Toaster
-            richColors
-            closeButton
-            position="top-right"
-            toastOptions={{
-              classNames: {
-                toast: "font-sans",
-              },
-            }}
-          />
+          <Toaster richColors position="bottom-right" />
         </QueryProvider>
       </body>
     </html>
