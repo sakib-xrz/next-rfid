@@ -1,5 +1,10 @@
 export const COURSE_OPTIONS = ["DIPLOMA", "BACHELOR", "M_SC", "PHD"] as const;
 export const ACTION_OPTIONS = ["IN", "OUT"] as const;
+export const GATE_EVENT_STATUS_OPTIONS = [
+  "SUCCESS",
+  "FAILED",
+  "SKIPPED",
+] as const;
 export const USER_ROLE_OPTIONS = [
   "STUDENT",
   "LECTURER",
@@ -10,6 +15,7 @@ export const ROLE_OPTIONS = [...USER_ROLE_OPTIONS, "ADMIN"] as const;
 
 export type CourseType = (typeof COURSE_OPTIONS)[number];
 export type ActionType = (typeof ACTION_OPTIONS)[number];
+export type GateEventStatusType = (typeof GATE_EVENT_STATUS_OPTIONS)[number];
 export type UserAssignableRoleType = (typeof USER_ROLE_OPTIONS)[number];
 
 export type StatusType = "PENDING" | "ACTIVE" | "INACTIVE" | "REJECTED";
@@ -21,9 +27,25 @@ export type ScanDeviceRow = {
   type: ActionType;
   location: string;
   serial_number: string | null;
+  gate_relay_port: string | null;
+  station_id: string | null;
+  gate_enabled: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type GateEventRow = {
+  id: string;
+  device_id: string;
+  user_id: string | null;
+  action: ActionType;
+  status: GateEventStatusType;
+  reason: string | null;
+  error: string | null;
+  created_at: string;
+  device: Pick<ScanDeviceRow, "name" | "type" | "location"> | null;
+  user: Pick<UserRow, "name" | "email" | "rfid_number"> | null;
 };
 
 export type RfidReaderPortStatus = {

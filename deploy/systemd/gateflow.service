@@ -1,0 +1,20 @@
+[Unit]
+Description=GateFlow RFID Station
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=gateflow
+Group=gateflow
+WorkingDirectory=/opt/gateflow/next-rfid
+EnvironmentFile=/opt/gateflow/station.env
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gateflow
+
+[Install]
+WantedBy=multi-user.target

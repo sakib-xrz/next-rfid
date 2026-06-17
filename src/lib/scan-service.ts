@@ -1,4 +1,5 @@
 import { ApiError } from "@/lib/api";
+import { triggerGateOpen } from "@/lib/gate-control";
 import { getPrismaClient } from "@/lib/prisma";
 import type { ActionType } from "@/lib/types";
 
@@ -11,6 +12,8 @@ type ProcessScanResult = {
   action: ActionType;
   message: string;
   name: string;
+  userId: string;
+  deviceId: string;
 };
 
 export async function processScan({
@@ -137,7 +140,19 @@ export async function processScan({
     return {
       name: user.name,
       action,
+      userId: user.id,
+      deviceId: device.id,
     };
+  });
+
+  void triggerGateOpen({
+    deviceId: result.deviceId,
+    action: result.action,
+    userId: result.userId,
+    reason: "RFID scan approved",
+  }).catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : "Unknown gate error";
+    console.error(`[GATE] Failed to open gate for device ${result.deviceId}:`, message);
   });
 
   return {

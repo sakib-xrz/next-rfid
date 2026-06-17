@@ -1,4 +1,14 @@
-import type { ActionType, CourseType, LogRow, RoleType, ScanDeviceRow, SessionRow, StatusType, UserRow } from "@/lib/types";
+import type {
+  ActionType,
+  CourseType,
+  GateEventStatusType,
+  LogRow,
+  RoleType,
+  ScanDeviceRow,
+  SessionRow,
+  StatusType,
+  UserRow,
+} from "@/lib/types";
 
 type UserLike = {
   id: string;
@@ -28,6 +38,9 @@ type ScanDeviceLike = {
   type: string;
   location: string;
   serialNumber: string | null;
+  gateRelayPort: string | null;
+  stationId: string | null;
+  gateEnabled: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -74,6 +87,9 @@ export function serializeScanDevice(device: ScanDeviceLike): ScanDeviceRow {
     type: device.type as ActionType,
     location: device.location,
     serial_number: device.serialNumber,
+    gate_relay_port: device.gateRelayPort,
+    station_id: device.stationId,
+    gate_enabled: device.gateEnabled,
     is_active: device.isActive,
     created_at: device.createdAt.toISOString(),
     updated_at: device.updatedAt.toISOString(),
@@ -107,6 +123,32 @@ export function serializeLog(log: {
     created_at: log.createdAt.toISOString(),
     users: serializeRelatedUser(log.user),
     device: serializeRelatedDevice(log.device),
+  };
+}
+
+export function serializeGateEvent(event: {
+  id: string;
+  deviceId: string;
+  userId: string | null;
+  action: string;
+  status: string;
+  reason: string | null;
+  error: string | null;
+  createdAt: Date;
+  device: RelatedDeviceLike;
+  user: RelatedUserLike | null;
+}) {
+  return {
+    id: event.id,
+    device_id: event.deviceId,
+    user_id: event.userId,
+    action: event.action as ActionType,
+    status: event.status as GateEventStatusType,
+    reason: event.reason,
+    error: event.error,
+    created_at: event.createdAt.toISOString(),
+    device: serializeRelatedDevice(event.device),
+    user: serializeRelatedUser(event.user),
   };
 }
 

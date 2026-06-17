@@ -230,6 +230,13 @@ export type UuidNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedUuidNullableFilter<$PrismaModel> | string | null
 }
 
+export type EnumGateEventStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.GateEventStatus | Prisma.EnumGateEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGateEventStatusFilter<$PrismaModel> | $Enums.GateEventStatus
+}
+
 export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
@@ -243,6 +250,16 @@ export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedStringNullableFilter<$PrismaModel>
   _max?: Prisma.NestedStringNullableFilter<$PrismaModel>
+}
+
+export type EnumGateEventStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GateEventStatus | Prisma.EnumGateEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGateEventStatusWithAggregatesFilter<$PrismaModel> | $Enums.GateEventStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGateEventStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGateEventStatusFilter<$PrismaModel>
 }
 
 export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -523,6 +540,13 @@ export type NestedUuidNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedUuidNullableFilter<$PrismaModel> | string | null
 }
 
+export type NestedEnumGateEventStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.GateEventStatus | Prisma.EnumGateEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGateEventStatusFilter<$PrismaModel> | $Enums.GateEventStatus
+}
+
 export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
@@ -535,6 +559,16 @@ export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedStringNullableFilter<$PrismaModel>
   _max?: Prisma.NestedStringNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumGateEventStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GateEventStatus | Prisma.EnumGateEventStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GateEventStatus[] | Prisma.ListEnumGateEventStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGateEventStatusWithAggregatesFilter<$PrismaModel> | $Enums.GateEventStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGateEventStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGateEventStatusFilter<$PrismaModel>
 }
 
 export type NestedDateTimeNullableFilter<$PrismaModel = never> = {

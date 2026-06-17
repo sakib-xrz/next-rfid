@@ -3,6 +3,7 @@
 import {
   Activity,
   Clock3,
+  DoorOpen,
   LayoutDashboard,
   LogOut,
   Monitor,
@@ -22,6 +23,7 @@ const links = [
   { href: "/admin/logs", label: "Logs", icon: Activity },
   { href: "/admin/sessions", label: "Sessions", icon: Clock3 },
   { href: "/admin/devices", label: "Devices", icon: Monitor },
+  { href: "/admin/gate", label: "Gate", icon: DoorOpen },
 ];
 
 export function AdminNav() {

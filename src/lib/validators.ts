@@ -34,6 +34,14 @@ export const createDeviceSchema = z.object({
   type: z.enum(ACTION_OPTIONS),
   location: z.string().min(1, "Location is required"),
   serial_number: z.string().trim().optional(),
+  gate_relay_port: z.string().trim().optional().nullable(),
+  station_id: z.string().trim().optional().nullable(),
+  gate_enabled: z.boolean().optional(),
 });
 
 export const updateDeviceSchema = createDeviceSchema;
+
+export const manualGateOpenSchema = z.object({
+  device_id: z.string().uuid(),
+  reason: z.string().trim().min(3, "Reason is required"),
+});

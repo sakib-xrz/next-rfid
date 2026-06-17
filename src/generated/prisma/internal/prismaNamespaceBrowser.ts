@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   ScanDevice: 'ScanDevice',
+  GateEvent: 'GateEvent',
   Log: 'Log',
   Session: 'Session'
 } as const
@@ -99,12 +100,29 @@ export const ScanDeviceScalarFieldEnum = {
   type: 'type',
   location: 'location',
   serialNumber: 'serialNumber',
+  gateRelayPort: 'gateRelayPort',
+  stationId: 'stationId',
+  gateEnabled: 'gateEnabled',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ScanDeviceScalarFieldEnum = (typeof ScanDeviceScalarFieldEnum)[keyof typeof ScanDeviceScalarFieldEnum]
+
+
+export const GateEventScalarFieldEnum = {
+  id: 'id',
+  deviceId: 'deviceId',
+  userId: 'userId',
+  action: 'action',
+  status: 'status',
+  reason: 'reason',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type GateEventScalarFieldEnum = (typeof GateEventScalarFieldEnum)[keyof typeof GateEventScalarFieldEnum]
 
 
 export const LogScalarFieldEnum = {

@@ -51,6 +51,9 @@ export async function POST(request: NextRequest) {
         type: parsed.data.type,
         location: parsed.data.location,
         serialNumber: parsed.data.serial_number || null,
+        gateRelayPort: parsed.data.gate_relay_port?.trim() || null,
+        stationId: parsed.data.station_id?.trim() || null,
+        gateEnabled: parsed.data.gate_enabled ?? true,
       },
     });
 

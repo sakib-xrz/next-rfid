@@ -52,6 +52,11 @@ export type User = Prisma.UserModel
  */
 export type ScanDevice = Prisma.ScanDeviceModel
 /**
+ * Model GateEvent
+ * 
+ */
+export type GateEvent = Prisma.GateEventModel
+/**
  * Model Log
  * 
  */

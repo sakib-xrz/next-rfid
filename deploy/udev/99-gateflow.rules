@@ -1,0 +1,17 @@
+# Stable USB serial symlinks for GateFlow station hardware.
+# Copy to /etc/udev/rules.d/99-gateflow.rules and run:
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger
+#
+# Find vendor/product IDs with: udevadm info -a -n /dev/ttyUSB0 | grep idVendor
+
+# Yanzeo RFID reader - IN lane
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ATTRS{serial}=="IN_READER_SERIAL", SYMLINK+="rfid-in"
+
+# Yanzeo RFID reader - OUT lane
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ATTRS{serial}=="OUT_READER_SERIAL", SYMLINK+="rfid-out"
+
+# USB relay module (CH340-based)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", ATTRS{serial}=="RELAY_SERIAL", SYMLINK+="gate-relay"
+
+KERNEL=="ttyUSB*", MODE="0660", GROUP="dialout"

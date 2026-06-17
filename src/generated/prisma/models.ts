@@ -10,6 +10,7 @@
  */
 export type * from './models/User'
 export type * from './models/ScanDevice'
+export type * from './models/GateEvent'
 export type * from './models/Log'
 export type * from './models/Session'
 export type * from './commonInputTypes'

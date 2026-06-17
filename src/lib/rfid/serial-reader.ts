@@ -1,4 +1,5 @@
 import { getPrismaClient } from "@/lib/prisma";
+import { getStationId } from "@/lib/gate-control/config";
 import { appendAndParseYanzeoEpcs } from "@/lib/rfid/yanzeo-parser";
 import { processScan } from "@/lib/scan-service";
 import type {
@@ -412,8 +413,12 @@ class RfidSerialReaderManager {
 
     try {
       const prisma = getPrismaClient();
+      const stationId = getStationId();
       const activeDevices = await prisma.scanDevice.findMany({
-        where: { isActive: true },
+        where: {
+          isActive: true,
+          ...(stationId ? { stationId } : {}),
+        },
         select: {
           id: true,
           name: true,

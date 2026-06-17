@@ -30,6 +30,9 @@ export type ScanDeviceMinAggregateOutputType = {
   type: $Enums.ActionType | null
   location: string | null
   serialNumber: string | null
+  gateRelayPort: string | null
+  stationId: string | null
+  gateEnabled: boolean | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +44,9 @@ export type ScanDeviceMaxAggregateOutputType = {
   type: $Enums.ActionType | null
   location: string | null
   serialNumber: string | null
+  gateRelayPort: string | null
+  stationId: string | null
+  gateEnabled: boolean | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +58,9 @@ export type ScanDeviceCountAggregateOutputType = {
   type: number
   location: number
   serialNumber: number
+  gateRelayPort: number
+  stationId: number
+  gateEnabled: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -65,6 +74,9 @@ export type ScanDeviceMinAggregateInputType = {
   type?: true
   location?: true
   serialNumber?: true
+  gateRelayPort?: true
+  stationId?: true
+  gateEnabled?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -76,6 +88,9 @@ export type ScanDeviceMaxAggregateInputType = {
   type?: true
   location?: true
   serialNumber?: true
+  gateRelayPort?: true
+  stationId?: true
+  gateEnabled?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +102,9 @@ export type ScanDeviceCountAggregateInputType = {
   type?: true
   location?: true
   serialNumber?: true
+  gateRelayPort?: true
+  stationId?: true
+  gateEnabled?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -171,6 +189,9 @@ export type ScanDeviceGroupByOutputType = {
   type: $Enums.ActionType
   location: string
   serialNumber: string | null
+  gateRelayPort: string | null
+  stationId: string | null
+  gateEnabled: boolean
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -203,11 +224,15 @@ export type ScanDeviceWhereInput = {
   type?: Prisma.EnumActionTypeFilter<"ScanDevice"> | $Enums.ActionType
   location?: Prisma.StringFilter<"ScanDevice"> | string
   serialNumber?: Prisma.StringNullableFilter<"ScanDevice"> | string | null
+  gateRelayPort?: Prisma.StringNullableFilter<"ScanDevice"> | string | null
+  stationId?: Prisma.StringNullableFilter<"ScanDevice"> | string | null
+  gateEnabled?: Prisma.BoolFilter<"ScanDevice"> | boolean
   isActive?: Prisma.BoolFilter<"ScanDevice"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ScanDevice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ScanDevice"> | Date | string
   logs?: Prisma.LogListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  gateEvents?: Prisma.GateEventListRelationFilter
 }
 
 export type ScanDeviceOrderByWithRelationInput = {
@@ -216,11 +241,15 @@ export type ScanDeviceOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   location?: Prisma.SortOrder
   serialNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  gateRelayPort?: Prisma.SortOrderInput | Prisma.SortOrder
+  stationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  gateEnabled?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   logs?: Prisma.LogOrderByRelationAggregateInput
   sessions?: Prisma.SessionOrderByRelationAggregateInput
+  gateEvents?: Prisma.GateEventOrderByRelationAggregateInput
 }
 
 export type ScanDeviceWhereUniqueInput = Prisma.AtLeast<{
@@ -232,11 +261,15 @@ export type ScanDeviceWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumActionTypeFilter<"ScanDevice"> | $Enums.ActionType
   location?: Prisma.StringFilter<"ScanDevice"> | string
   serialNumber?: Prisma.StringNullableFilter<"ScanDevice"> | string | null
+  gateRelayPort?: Prisma.StringNullableFilter<"ScanDevice"> | string | null
+  stationId?: Prisma.StringNullableFilter<"ScanDevice"> | string | null
+  gateEnabled?: Prisma.BoolFilter<"ScanDevice"> | boolean
   isActive?: Prisma.BoolFilter<"ScanDevice"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ScanDevice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ScanDevice"> | Date | string
   logs?: Prisma.LogListRelationFilter
   sessions?: Prisma.SessionListRelationFilter
+  gateEvents?: Prisma.GateEventListRelationFilter
 }, "id">
 
 export type ScanDeviceOrderByWithAggregationInput = {
@@ -245,6 +278,9 @@ export type ScanDeviceOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   location?: Prisma.SortOrder
   serialNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  gateRelayPort?: Prisma.SortOrderInput | Prisma.SortOrder
+  stationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  gateEnabled?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -262,6 +298,9 @@ export type ScanDeviceScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumActionTypeWithAggregatesFilter<"ScanDevice"> | $Enums.ActionType
   location?: Prisma.StringWithAggregatesFilter<"ScanDevice"> | string
   serialNumber?: Prisma.StringNullableWithAggregatesFilter<"ScanDevice"> | string | null
+  gateRelayPort?: Prisma.StringNullableWithAggregatesFilter<"ScanDevice"> | string | null
+  stationId?: Prisma.StringNullableWithAggregatesFilter<"ScanDevice"> | string | null
+  gateEnabled?: Prisma.BoolWithAggregatesFilter<"ScanDevice"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"ScanDevice"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ScanDevice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ScanDevice"> | Date | string
@@ -273,11 +312,15 @@ export type ScanDeviceCreateInput = {
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   logs?: Prisma.LogCreateNestedManyWithoutDeviceInput
   sessions?: Prisma.SessionCreateNestedManyWithoutDeviceInput
+  gateEvents?: Prisma.GateEventCreateNestedManyWithoutDeviceInput
 }
 
 export type ScanDeviceUncheckedCreateInput = {
@@ -286,11 +329,15 @@ export type ScanDeviceUncheckedCreateInput = {
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   logs?: Prisma.LogUncheckedCreateNestedManyWithoutDeviceInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutDeviceInput
+  gateEvents?: Prisma.GateEventUncheckedCreateNestedManyWithoutDeviceInput
 }
 
 export type ScanDeviceUpdateInput = {
@@ -299,11 +346,15 @@ export type ScanDeviceUpdateInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logs?: Prisma.LogUpdateManyWithoutDeviceNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutDeviceNestedInput
+  gateEvents?: Prisma.GateEventUpdateManyWithoutDeviceNestedInput
 }
 
 export type ScanDeviceUncheckedUpdateInput = {
@@ -312,11 +363,15 @@ export type ScanDeviceUncheckedUpdateInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logs?: Prisma.LogUncheckedUpdateManyWithoutDeviceNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutDeviceNestedInput
+  gateEvents?: Prisma.GateEventUncheckedUpdateManyWithoutDeviceNestedInput
 }
 
 export type ScanDeviceCreateManyInput = {
@@ -325,6 +380,9 @@ export type ScanDeviceCreateManyInput = {
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -336,6 +394,9 @@ export type ScanDeviceUpdateManyMutationInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -347,6 +408,9 @@ export type ScanDeviceUncheckedUpdateManyInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -358,6 +422,9 @@ export type ScanDeviceCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   location?: Prisma.SortOrder
   serialNumber?: Prisma.SortOrder
+  gateRelayPort?: Prisma.SortOrder
+  stationId?: Prisma.SortOrder
+  gateEnabled?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -369,6 +436,9 @@ export type ScanDeviceMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   location?: Prisma.SortOrder
   serialNumber?: Prisma.SortOrder
+  gateRelayPort?: Prisma.SortOrder
+  stationId?: Prisma.SortOrder
+  gateEnabled?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -380,9 +450,17 @@ export type ScanDeviceMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   location?: Prisma.SortOrder
   serialNumber?: Prisma.SortOrder
+  gateRelayPort?: Prisma.SortOrder
+  stationId?: Prisma.SortOrder
+  gateEnabled?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ScanDeviceScalarRelationFilter = {
+  is?: Prisma.ScanDeviceWhereInput
+  isNot?: Prisma.ScanDeviceWhereInput
 }
 
 export type ScanDeviceNullableScalarRelationFilter = {
@@ -396,6 +474,20 @@ export type EnumActionTypeFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type ScanDeviceCreateNestedOneWithoutGateEventsInput = {
+  create?: Prisma.XOR<Prisma.ScanDeviceCreateWithoutGateEventsInput, Prisma.ScanDeviceUncheckedCreateWithoutGateEventsInput>
+  connectOrCreate?: Prisma.ScanDeviceCreateOrConnectWithoutGateEventsInput
+  connect?: Prisma.ScanDeviceWhereUniqueInput
+}
+
+export type ScanDeviceUpdateOneRequiredWithoutGateEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.ScanDeviceCreateWithoutGateEventsInput, Prisma.ScanDeviceUncheckedCreateWithoutGateEventsInput>
+  connectOrCreate?: Prisma.ScanDeviceCreateOrConnectWithoutGateEventsInput
+  upsert?: Prisma.ScanDeviceUpsertWithoutGateEventsInput
+  connect?: Prisma.ScanDeviceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ScanDeviceUpdateToOneWithWhereWithoutGateEventsInput, Prisma.ScanDeviceUpdateWithoutGateEventsInput>, Prisma.ScanDeviceUncheckedUpdateWithoutGateEventsInput>
 }
 
 export type ScanDeviceCreateNestedOneWithoutLogsInput = {
@@ -430,16 +522,100 @@ export type ScanDeviceUpdateOneWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ScanDeviceUpdateToOneWithWhereWithoutSessionsInput, Prisma.ScanDeviceUpdateWithoutSessionsInput>, Prisma.ScanDeviceUncheckedUpdateWithoutSessionsInput>
 }
 
+export type ScanDeviceCreateWithoutGateEventsInput = {
+  id?: string
+  name: string
+  type: $Enums.ActionType
+  location: string
+  serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.LogCreateNestedManyWithoutDeviceInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutDeviceInput
+}
+
+export type ScanDeviceUncheckedCreateWithoutGateEventsInput = {
+  id?: string
+  name: string
+  type: $Enums.ActionType
+  location: string
+  serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  logs?: Prisma.LogUncheckedCreateNestedManyWithoutDeviceInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutDeviceInput
+}
+
+export type ScanDeviceCreateOrConnectWithoutGateEventsInput = {
+  where: Prisma.ScanDeviceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ScanDeviceCreateWithoutGateEventsInput, Prisma.ScanDeviceUncheckedCreateWithoutGateEventsInput>
+}
+
+export type ScanDeviceUpsertWithoutGateEventsInput = {
+  update: Prisma.XOR<Prisma.ScanDeviceUpdateWithoutGateEventsInput, Prisma.ScanDeviceUncheckedUpdateWithoutGateEventsInput>
+  create: Prisma.XOR<Prisma.ScanDeviceCreateWithoutGateEventsInput, Prisma.ScanDeviceUncheckedCreateWithoutGateEventsInput>
+  where?: Prisma.ScanDeviceWhereInput
+}
+
+export type ScanDeviceUpdateToOneWithWhereWithoutGateEventsInput = {
+  where?: Prisma.ScanDeviceWhereInput
+  data: Prisma.XOR<Prisma.ScanDeviceUpdateWithoutGateEventsInput, Prisma.ScanDeviceUncheckedUpdateWithoutGateEventsInput>
+}
+
+export type ScanDeviceUpdateWithoutGateEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.LogUpdateManyWithoutDeviceNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutDeviceNestedInput
+}
+
+export type ScanDeviceUncheckedUpdateWithoutGateEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  logs?: Prisma.LogUncheckedUpdateManyWithoutDeviceNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutDeviceNestedInput
+}
+
 export type ScanDeviceCreateWithoutLogsInput = {
   id?: string
   name: string
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutDeviceInput
+  gateEvents?: Prisma.GateEventCreateNestedManyWithoutDeviceInput
 }
 
 export type ScanDeviceUncheckedCreateWithoutLogsInput = {
@@ -448,10 +624,14 @@ export type ScanDeviceUncheckedCreateWithoutLogsInput = {
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutDeviceInput
+  gateEvents?: Prisma.GateEventUncheckedCreateNestedManyWithoutDeviceInput
 }
 
 export type ScanDeviceCreateOrConnectWithoutLogsInput = {
@@ -476,10 +656,14 @@ export type ScanDeviceUpdateWithoutLogsInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutDeviceNestedInput
+  gateEvents?: Prisma.GateEventUpdateManyWithoutDeviceNestedInput
 }
 
 export type ScanDeviceUncheckedUpdateWithoutLogsInput = {
@@ -488,10 +672,14 @@ export type ScanDeviceUncheckedUpdateWithoutLogsInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutDeviceNestedInput
+  gateEvents?: Prisma.GateEventUncheckedUpdateManyWithoutDeviceNestedInput
 }
 
 export type ScanDeviceCreateWithoutSessionsInput = {
@@ -500,10 +688,14 @@ export type ScanDeviceCreateWithoutSessionsInput = {
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   logs?: Prisma.LogCreateNestedManyWithoutDeviceInput
+  gateEvents?: Prisma.GateEventCreateNestedManyWithoutDeviceInput
 }
 
 export type ScanDeviceUncheckedCreateWithoutSessionsInput = {
@@ -512,10 +704,14 @@ export type ScanDeviceUncheckedCreateWithoutSessionsInput = {
   type: $Enums.ActionType
   location: string
   serialNumber?: string | null
+  gateRelayPort?: string | null
+  stationId?: string | null
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   logs?: Prisma.LogUncheckedCreateNestedManyWithoutDeviceInput
+  gateEvents?: Prisma.GateEventUncheckedCreateNestedManyWithoutDeviceInput
 }
 
 export type ScanDeviceCreateOrConnectWithoutSessionsInput = {
@@ -540,10 +736,14 @@ export type ScanDeviceUpdateWithoutSessionsInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logs?: Prisma.LogUpdateManyWithoutDeviceNestedInput
+  gateEvents?: Prisma.GateEventUpdateManyWithoutDeviceNestedInput
 }
 
 export type ScanDeviceUncheckedUpdateWithoutSessionsInput = {
@@ -552,10 +752,14 @@ export type ScanDeviceUncheckedUpdateWithoutSessionsInput = {
   type?: Prisma.EnumActionTypeFieldUpdateOperationsInput | $Enums.ActionType
   location?: Prisma.StringFieldUpdateOperationsInput | string
   serialNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateRelayPort?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gateEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   logs?: Prisma.LogUncheckedUpdateManyWithoutDeviceNestedInput
+  gateEvents?: Prisma.GateEventUncheckedUpdateManyWithoutDeviceNestedInput
 }
 
 
@@ -566,11 +770,13 @@ export type ScanDeviceUncheckedUpdateWithoutSessionsInput = {
 export type ScanDeviceCountOutputType = {
   logs: number
   sessions: number
+  gateEvents: number
 }
 
 export type ScanDeviceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   logs?: boolean | ScanDeviceCountOutputTypeCountLogsArgs
   sessions?: boolean | ScanDeviceCountOutputTypeCountSessionsArgs
+  gateEvents?: boolean | ScanDeviceCountOutputTypeCountGateEventsArgs
 }
 
 /**
@@ -597,6 +803,13 @@ export type ScanDeviceCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.T
   where?: Prisma.SessionWhereInput
 }
 
+/**
+ * ScanDeviceCountOutputType without action
+ */
+export type ScanDeviceCountOutputTypeCountGateEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GateEventWhereInput
+}
+
 
 export type ScanDeviceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -604,11 +817,15 @@ export type ScanDeviceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   type?: boolean
   location?: boolean
   serialNumber?: boolean
+  gateRelayPort?: boolean
+  stationId?: boolean
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   logs?: boolean | Prisma.ScanDevice$logsArgs<ExtArgs>
   sessions?: boolean | Prisma.ScanDevice$sessionsArgs<ExtArgs>
+  gateEvents?: boolean | Prisma.ScanDevice$gateEventsArgs<ExtArgs>
   _count?: boolean | Prisma.ScanDeviceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["scanDevice"]>
 
@@ -618,6 +835,9 @@ export type ScanDeviceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   type?: boolean
   location?: boolean
   serialNumber?: boolean
+  gateRelayPort?: boolean
+  stationId?: boolean
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -629,6 +849,9 @@ export type ScanDeviceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   type?: boolean
   location?: boolean
   serialNumber?: boolean
+  gateRelayPort?: boolean
+  stationId?: boolean
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -640,15 +863,19 @@ export type ScanDeviceSelectScalar = {
   type?: boolean
   location?: boolean
   serialNumber?: boolean
+  gateRelayPort?: boolean
+  stationId?: boolean
+  gateEnabled?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ScanDeviceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "location" | "serialNumber" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["scanDevice"]>
+export type ScanDeviceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "location" | "serialNumber" | "gateRelayPort" | "stationId" | "gateEnabled" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["scanDevice"]>
 export type ScanDeviceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   logs?: boolean | Prisma.ScanDevice$logsArgs<ExtArgs>
   sessions?: boolean | Prisma.ScanDevice$sessionsArgs<ExtArgs>
+  gateEvents?: boolean | Prisma.ScanDevice$gateEventsArgs<ExtArgs>
   _count?: boolean | Prisma.ScanDeviceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ScanDeviceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -659,6 +886,7 @@ export type $ScanDevicePayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     logs: Prisma.$LogPayload<ExtArgs>[]
     sessions: Prisma.$SessionPayload<ExtArgs>[]
+    gateEvents: Prisma.$GateEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -666,6 +894,9 @@ export type $ScanDevicePayload<ExtArgs extends runtime.Types.Extensions.Internal
     type: $Enums.ActionType
     location: string
     serialNumber: string | null
+    gateRelayPort: string | null
+    stationId: string | null
+    gateEnabled: boolean
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -1065,6 +1296,7 @@ export interface Prisma__ScanDeviceClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   logs<T extends Prisma.ScanDevice$logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScanDevice$logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.ScanDevice$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScanDevice$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  gateEvents<T extends Prisma.ScanDevice$gateEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ScanDevice$gateEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GateEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1099,6 +1331,9 @@ export interface ScanDeviceFieldRefs {
   readonly type: Prisma.FieldRef<"ScanDevice", 'ActionType'>
   readonly location: Prisma.FieldRef<"ScanDevice", 'String'>
   readonly serialNumber: Prisma.FieldRef<"ScanDevice", 'String'>
+  readonly gateRelayPort: Prisma.FieldRef<"ScanDevice", 'String'>
+  readonly stationId: Prisma.FieldRef<"ScanDevice", 'String'>
+  readonly gateEnabled: Prisma.FieldRef<"ScanDevice", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"ScanDevice", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"ScanDevice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ScanDevice", 'DateTime'>
@@ -1540,6 +1775,30 @@ export type ScanDevice$sessionsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
+}
+
+/**
+ * ScanDevice.gateEvents
+ */
+export type ScanDevice$gateEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GateEvent
+   */
+  select?: Prisma.GateEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GateEvent
+   */
+  omit?: Prisma.GateEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GateEventInclude<ExtArgs> | null
+  where?: Prisma.GateEventWhereInput
+  orderBy?: Prisma.GateEventOrderByWithRelationInput | Prisma.GateEventOrderByWithRelationInput[]
+  cursor?: Prisma.GateEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GateEventScalarFieldEnum | Prisma.GateEventScalarFieldEnum[]
 }
 
 /**

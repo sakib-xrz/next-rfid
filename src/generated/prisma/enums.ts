@@ -46,3 +46,12 @@ export const ActionType = {
 } as const
 
 export type ActionType = (typeof ActionType)[keyof typeof ActionType]
+
+
+export const GateEventStatus = {
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type GateEventStatus = (typeof GateEventStatus)[keyof typeof GateEventStatus]

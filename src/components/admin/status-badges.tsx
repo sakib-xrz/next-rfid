@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { ActionType, StatusType } from "@/lib/types";
+import type { ActionType, GateEventStatusType, StatusType } from "@/lib/types";
 
 export function UserStatusBadge({ status }: { status: StatusType }) {
   const variantByStatus = {
@@ -26,4 +26,14 @@ export function DeviceStatusBadge({ active }: { active: boolean }) {
       {active ? "Active" : "Inactive"}
     </Badge>
   );
+}
+
+export function GateEventStatusBadge({ status }: { status: GateEventStatusType }) {
+  const variantByStatus = {
+    SUCCESS: "success",
+    FAILED: "destructive",
+    SKIPPED: "warning",
+  } as const;
+
+  return <Badge variant={variantByStatus[status]}>{status}</Badge>;
 }

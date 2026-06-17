@@ -57,12 +57,18 @@ export function DevicesManagement() {
   const [newType, setNewType] = useState<ActionType>("IN");
   const [newLocation, setNewLocation] = useState("");
   const [newSerialNumber, setNewSerialNumber] = useState("");
+  const [newGateRelayPort, setNewGateRelayPort] = useState("");
+  const [newStationId, setNewStationId] = useState("");
+  const [newGateEnabled, setNewGateEnabled] = useState(true);
 
   // Edit device form state
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState<ActionType>("IN");
   const [editLocation, setEditLocation] = useState("");
   const [editSerialNumber, setEditSerialNumber] = useState("");
+  const [editGateRelayPort, setEditGateRelayPort] = useState("");
+  const [editStationId, setEditStationId] = useState("");
+  const [editGateEnabled, setEditGateEnabled] = useState(true);
 
   const loadDevices = useCallback(async () => {
     setLoading(true);
@@ -124,6 +130,9 @@ export function DevicesManagement() {
           type: newType,
           location: newLocation.trim(),
           serial_number: newSerialNumber.trim() || undefined,
+          gate_relay_port: newGateRelayPort.trim() || null,
+          station_id: newStationId.trim() || null,
+          gate_enabled: newGateEnabled,
         }),
       });
       const payload = (await response.json()) as { error?: string };
@@ -136,6 +145,9 @@ export function DevicesManagement() {
       setNewType("IN");
       setNewLocation("");
       setNewSerialNumber("");
+      setNewGateRelayPort("");
+      setNewStationId("");
+      setNewGateEnabled(true);
       await loadDevices();
     } catch (error) {
       toast.error(
@@ -152,6 +164,9 @@ export function DevicesManagement() {
     setEditType(device.type);
     setEditLocation(device.location);
     setEditSerialNumber(device.serial_number ?? "");
+    setEditGateRelayPort(device.gate_relay_port ?? "");
+    setEditStationId(device.station_id ?? "");
+    setEditGateEnabled(device.gate_enabled);
   }
 
   function closeEditDialog() {
@@ -160,6 +175,9 @@ export function DevicesManagement() {
     setEditType("IN");
     setEditLocation("");
     setEditSerialNumber("");
+    setEditGateRelayPort("");
+    setEditStationId("");
+    setEditGateEnabled(true);
   }
 
   async function handleUpdateDevice() {
@@ -180,6 +198,9 @@ export function DevicesManagement() {
           type: editType,
           location: editLocation.trim(),
           serial_number: editSerialNumber.trim() || undefined,
+          gate_relay_port: editGateRelayPort.trim() || null,
+          station_id: editStationId.trim() || null,
+          gate_enabled: editGateEnabled,
         }),
       });
       const payload = (await response.json()) as { error?: string };
@@ -247,6 +268,9 @@ export function DevicesManagement() {
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>COM Port / Serial Number</TableHead>
+              <TableHead>Relay Port</TableHead>
+              <TableHead>Station</TableHead>
+              <TableHead>Gate</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created At</TableHead>
@@ -257,7 +281,7 @@ export function DevicesManagement() {
             {loading ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={10}
                   className="py-10 text-center text-muted-foreground"
                 >
                   Loading devices...
@@ -266,7 +290,7 @@ export function DevicesManagement() {
             ) : devices.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={10}
                   className="py-10 text-center text-muted-foreground"
                 >
                   No scan devices found. Add one to get started.
@@ -284,6 +308,15 @@ export function DevicesManagement() {
                       <RadioTower className="size-3.5" />
                       {device.serial_number ?? "-"}
                     </span>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {device.gate_relay_port ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {device.station_id ?? "-"}
+                  </TableCell>
+                  <TableCell>
+                    <DeviceStatusBadge active={device.gate_enabled} />
                   </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center gap-2">
@@ -339,6 +372,9 @@ export function DevicesManagement() {
             setNewType("IN");
             setNewLocation("");
             setNewSerialNumber("");
+            setNewGateRelayPort("");
+            setNewStationId("");
+            setNewGateEnabled(true);
           }
         }}
       >
@@ -396,6 +432,39 @@ export function DevicesManagement() {
                   placeholder="e.g. COM9"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-relay-port">Gate Relay COM Port</Label>
+                <Input
+                  id="device-relay-port"
+                  value={newGateRelayPort}
+                  onChange={(e) => setNewGateRelayPort(e.target.value)}
+                  placeholder="e.g. COM11 for IN, COM22 for OUT"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-station-id">Station ID</Label>
+                <Input
+                  id="device-station-id"
+                  value={newStationId}
+                  onChange={(e) => setNewStationId(e.target.value)}
+                  placeholder="e.g. boys-hostel-gate"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-gate-enabled">Gate Control</Label>
+                <Select
+                  value={newGateEnabled ? "enabled" : "disabled"}
+                  onValueChange={(value) => setNewGateEnabled(value === "enabled")}
+                >
+                  <SelectTrigger id="device-gate-enabled">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="enabled">Enabled</SelectItem>
+                    <SelectItem value="disabled">Disabled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <DialogFooter className="mt-5">
@@ -407,6 +476,9 @@ export function DevicesManagement() {
                 setNewType("IN");
                 setNewLocation("");
                 setNewSerialNumber("");
+                setNewGateRelayPort("");
+                setNewStationId("");
+                setNewGateEnabled(true);
               }}
             >
               Cancel
@@ -488,6 +560,43 @@ export function DevicesManagement() {
                   onChange={(e) => setEditSerialNumber(e.target.value)}
                   placeholder="e.g. COM9"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-relay-port">
+                  Gate Relay COM Port
+                </Label>
+                <Input
+                  id="edit-device-relay-port"
+                  value={editGateRelayPort}
+                  onChange={(e) => setEditGateRelayPort(e.target.value)}
+                  placeholder="e.g. COM11 for IN, COM22 for OUT"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-station-id">Station ID</Label>
+                <Input
+                  id="edit-device-station-id"
+                  value={editStationId}
+                  onChange={(e) => setEditStationId(e.target.value)}
+                  placeholder="e.g. boys-hostel-gate"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-device-gate-enabled">Gate Control</Label>
+                <Select
+                  value={editGateEnabled ? "enabled" : "disabled"}
+                  onValueChange={(value) =>
+                    setEditGateEnabled(value === "enabled")
+                  }
+                >
+                  <SelectTrigger id="edit-device-gate-enabled">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="enabled">Enabled</SelectItem>
+                    <SelectItem value="disabled">Disabled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

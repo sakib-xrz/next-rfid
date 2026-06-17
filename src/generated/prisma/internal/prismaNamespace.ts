@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   ScanDevice: 'ScanDevice',
+  GateEvent: 'GateEvent',
   Log: 'Log',
   Session: 'Session'
 } as const
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "scanDevice" | "log" | "session"
+    modelProps: "user" | "scanDevice" | "gateEvent" | "log" | "session"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -552,6 +553,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ScanDeviceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ScanDeviceCountAggregateOutputType> | number
+        }
+      }
+    }
+    GateEvent: {
+      payload: Prisma.$GateEventPayload<ExtArgs>
+      fields: Prisma.GateEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GateEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GateEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>
+        }
+        findFirst: {
+          args: Prisma.GateEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GateEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>
+        }
+        findMany: {
+          args: Prisma.GateEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>[]
+        }
+        create: {
+          args: Prisma.GateEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>
+        }
+        createMany: {
+          args: Prisma.GateEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GateEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>[]
+        }
+        delete: {
+          args: Prisma.GateEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>
+        }
+        update: {
+          args: Prisma.GateEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.GateEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GateEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GateEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.GateEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GateEventPayload>
+        }
+        aggregate: {
+          args: Prisma.GateEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGateEvent>
+        }
+        groupBy: {
+          args: Prisma.GateEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GateEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GateEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GateEventCountAggregateOutputType> | number
         }
       }
     }
@@ -768,12 +843,29 @@ export const ScanDeviceScalarFieldEnum = {
   type: 'type',
   location: 'location',
   serialNumber: 'serialNumber',
+  gateRelayPort: 'gateRelayPort',
+  stationId: 'stationId',
+  gateEnabled: 'gateEnabled',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ScanDeviceScalarFieldEnum = (typeof ScanDeviceScalarFieldEnum)[keyof typeof ScanDeviceScalarFieldEnum]
+
+
+export const GateEventScalarFieldEnum = {
+  id: 'id',
+  deviceId: 'deviceId',
+  userId: 'userId',
+  action: 'action',
+  status: 'status',
+  reason: 'reason',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type GateEventScalarFieldEnum = (typeof GateEventScalarFieldEnum)[keyof typeof GateEventScalarFieldEnum]
 
 
 export const LogScalarFieldEnum = {
@@ -921,6 +1013,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'GateEventStatus'
+ */
+export type EnumGateEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GateEventStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'GateEventStatus[]'
+ */
+export type ListEnumGateEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GateEventStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1059,6 +1165,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   scanDevice?: Prisma.ScanDeviceOmit
+  gateEvent?: Prisma.GateEventOmit
   log?: Prisma.LogOmit
   session?: Prisma.SessionOmit
 }
